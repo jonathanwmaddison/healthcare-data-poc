@@ -84,11 +84,12 @@ class HDHScorer:
         """Load evaluation configuration"""
         default_config = {
             "category_weights": {
-                "patient_matching": 0.30,
-                "cohort_building": 0.25,
-                "data_quality": 0.20,
-                "data_provenance": 0.15,
-                "terminology": 0.10
+                "patient_matching": 0.25,
+                "cross_system_integration": 0.20,
+                "cohort_building": 0.20,
+                "data_quality": 0.15,
+                "data_provenance": 0.12,
+                "terminology": 0.08
             },
             "difficulty_multipliers": {
                 "easy": 1.0,

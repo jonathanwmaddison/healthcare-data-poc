@@ -64,6 +64,19 @@ GET /fhir/r4/metadata                    # Get capability statement
 - Patient - billing patient registry
 - Claim - insurance claims
 
+## Patient ID Schemes
+
+Each system uses a distinct ID prefix:
+
+| System | ID Format | Example |
+|--------|-----------|---------|
+| EHR | MRN-XXXXXX | MRN-100042 |
+| LIS | LAB-XXXXXX | LAB-200042 |
+| RIS | RAD-XXXXXX | RAD-300042 |
+| Pharmacy | RX-XXXXXX | RX-400042 |
+| PAS | ADT-XXXXXX | ADT-500042 |
+| Billing | ACCT-XXXXXX | ACCT-600042 |
+
 ## Important Notes
 
 1. **No Shared Patient ID**: Each system has its own patient ID scheme. To find the same patient across systems, you must match on demographics (name, DOB, etc.).
