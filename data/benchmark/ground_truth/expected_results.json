@@ -1,92 +1,44 @@
 {
-  "description": "Expected results for benchmark queries - DO NOT provide to agents",
-  "generated_at": "2024-01-01T00:00:00Z",
-  "queries": {
-    "Q001": {
-      "description": "Find all clinical data for patient with EHR MRN MRN-100042",
-      "expected": {
-        "patient_ids": {
-          "ehr": "MRN-100042",
-          "lis": "LAB-200042",
-          "ris": "RAD-300042",
-          "pharmacy": "RX-400042",
-          "pas": "ADT-500042",
-          "billing": "ACCT-600042"
-        },
-        "canonical_patient": "patient-00042",
-        "scoring": {
-          "type": "patient_matching",
-          "points_per_system_match": 1,
-          "max_points": 6
-        }
-      }
+  "description": "Expected results for benchmark scoring - DO NOT give to agents",
+  "generated_at": "2026-02-04T07:56:35.624571",
+  "task_expectations": {
+    "HDH-COH-001": {
+      "diabetic_count": 134,
+      "count_range": [
+        114,
+        154
+      ]
     },
-    "Q002": {
-      "description": "Find all patients with Type 2 Diabetes (ICD-10 E11.x)",
-      "expected": {
-        "count_range": [180, 220],
-        "sample_patient_ids": ["MRN-100003", "MRN-100015", "MRN-100027"],
-        "icd10_codes": ["E11.9", "E11.65", "E11.21", "E11.22"],
-        "scoring": {
-          "type": "cohort_precision_recall",
-          "tolerance": 0.05
-        }
-      }
+    "HDH-COH-002": {
+      "abnormal_glucose_count": 80
     },
-    "Q003": {
-      "description": "Find all patients with abnormal glucose results",
-      "expected": {
-        "count_range": [100, 200],
-        "loinc_code": "2345-7",
-        "interpretation_codes": ["H", "L"],
-        "scoring": {
-          "type": "cohort_precision_recall",
-          "tolerance": 0.1
-        }
-      }
+    "HDH-MPI-003": {
+      "duplicate_count": 49,
+      "count_range": [
+        39,
+        59
+      ]
     },
-    "Q004": {
-      "description": "Identify duplicate patient records",
-      "expected": {
-        "num_patients_with_duplicates_range": [40, 60],
-        "scoring": {
-          "type": "duplicate_detection",
-          "true_positive_weight": 1.0,
-          "false_positive_penalty": 0.5
-        }
-      }
+    "HDH-DQ-001": {
+      "orphaned_count": 30,
+      "count_range": [
+        25,
+        35
+      ]
     },
-    "Q005": {
-      "description": "Find diabetic patients on metformin with recent HbA1c",
-      "expected": {
-        "requires_cross_system_matching": true,
-        "systems_involved": ["ehr", "pharmacy", "lis"],
-        "condition_code": "E11",
-        "medication_rxnorm": "860975",
-        "lab_loinc": "4548-4",
-        "scoring": {
-          "type": "cross_system_cohort",
-          "patient_matching_weight": 0.5,
-          "cohort_accuracy_weight": 0.5
-        }
-      }
+    "HDH-DQ-002": {
+      "abandoned_count": 20,
+      "count_range": [
+        15,
+        25
+      ]
     },
-    "Q006": {
-      "description": "Find data quality issues",
-      "expected": {
-        "orphaned_results": {
-          "count_range": [25, 35],
-          "criteria": "Observation without basedOn reference"
-        },
-        "abandoned_orders": {
-          "count_range": [15, 25],
-          "criteria": "ServiceRequest with status=active and authoredOn > 100 days ago"
-        },
-        "scoring": {
-          "type": "data_quality_detection",
-          "tolerance": 0.2
-        }
-      }
+    "HDH-TRM-002": {
+      "legacy_icd9_count": 100,
+      "count_range": [
+        90,
+        110
+      ]
     }
   }
 }
