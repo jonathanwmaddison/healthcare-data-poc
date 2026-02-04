@@ -1,0 +1,231 @@
+version: '3.8'
+
+services:
+  # ===================
+  # Infrastructure
+  # ===================
+
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: healthcare
+      POSTGRES_PASSWORD: healthcare123
+      POSTGRES_MULTIPLE_DATABASES: ehr,lis,ris,pharmacy,pas,billing
+    volumes:
+      - ./infrastructure/postgres/init-multi-db.sh:/docker-entrypoint-initdb.d/init-multi-db.sh
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U healthcare"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  rabbitmq:
+    image: rabbitmq:3.12-management-alpine
+    environment:
+      RABBITMQ_DEFAULT_USER: healthcare
+      RABBITMQ_DEFAULT_PASS: healthcare123
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  minio:
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: healthcare
+      MINIO_ROOT_PASSWORD: healthcare123
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+
+  # ===================
+  # Healthcare Services
+  # ===================
+
+  ehr-service:
+    build:
+      context: .
+      dockerfile: services/ehr/Dockerfile
+    environment:
+      DATABASE_URL: postgresql://healthcare:healthcare123@postgres:5432/ehr
+      RABBITMQ_URL: amqp://healthcare:healthcare123@rabbitmq:5672/
+      REDIS_URL: redis://redis:6379/0
+      SERVICE_NAME: ehr
+    ports:
+      - "8001:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  lis-service:
+    build:
+      context: .
+      dockerfile: services/lis/Dockerfile
+    environment:
+      DATABASE_URL: postgresql://healthcare:healthcare123@postgres:5432/lis
+      RABBITMQ_URL: amqp://healthcare:healthcare123@rabbitmq:5672/
+      REDIS_URL: redis://redis:6379/1
+      SERVICE_NAME: lis
+    ports:
+      - "8002:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  ris-service:
+    build:
+      context: .
+      dockerfile: services/ris/Dockerfile
+    environment:
+      DATABASE_URL: postgresql://healthcare:healthcare123@postgres:5432/ris
+      RABBITMQ_URL: amqp://healthcare:healthcare123@rabbitmq:5672/
+      REDIS_URL: redis://redis:6379/2
+      SERVICE_NAME: ris
+    ports:
+      - "8003:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  pacs-service:
+    build:
+      context: .
+      dockerfile: services/pacs/Dockerfile
+    environment:
+      DATABASE_URL: postgresql://healthcare:healthcare123@postgres:5432/ris
+      MINIO_ENDPOINT: minio:9000
+      MINIO_ACCESS_KEY: healthcare
+      MINIO_SECRET_KEY: healthcare123
+      SERVICE_NAME: pacs
+    ports:
+      - "8004:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_started
+
+  pharmacy-service:
+    build:
+      context: .
+      dockerfile: services/pharmacy/Dockerfile
+    environment:
+      DATABASE_URL: postgresql://healthcare:healthcare123@postgres:5432/pharmacy
+      RABBITMQ_URL: amqp://healthcare:healthcare123@rabbitmq:5672/
+      REDIS_URL: redis://redis:6379/3
+      SERVICE_NAME: pharmacy
+    ports:
+      - "8005:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  pas-service:
+    build:
+      context: .
+      dockerfile: services/pas/Dockerfile
+    environment:
+      DATABASE_URL: postgresql://healthcare:healthcare123@postgres:5432/pas
+      RABBITMQ_URL: amqp://healthcare:healthcare123@rabbitmq:5672/
+      REDIS_URL: redis://redis:6379/4
+      SERVICE_NAME: pas
+    ports:
+      - "8006:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  billing-service:
+    build:
+      context: .
+      dockerfile: services/billing/Dockerfile
+    environment:
+      DATABASE_URL: postgresql://healthcare:healthcare123@postgres:5432/billing
+      RABBITMQ_URL: amqp://healthcare:healthcare123@rabbitmq:5672/
+      REDIS_URL: redis://redis:6379/5
+      SERVICE_NAME: billing
+    ports:
+      - "8007:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  integration-engine:
+    build:
+      context: .
+      dockerfile: services/integration-engine/Dockerfile
+    environment:
+      RABBITMQ_URL: amqp://healthcare:healthcare123@rabbitmq:5672/
+      REDIS_URL: redis://redis:6379/6
+      EHR_URL: http://ehr-service:8000
+      LIS_URL: http://lis-service:8000
+      RIS_URL: http://ris-service:8000
+      PHARMACY_URL: http://pharmacy-service:8000
+      PAS_URL: http://pas-service:8000
+      BILLING_URL: http://billing-service:8000
+    ports:
+      - "8008:8000"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      ehr-service:
+        condition: service_started
+      lis-service:
+        condition: service_started
+
+  # ===================
+  # API Gateway
+  # ===================
+
+  api-gateway:
+    image: nginx:alpine
+    volumes:
+      - ./infrastructure/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "8000:80"
+    depends_on:
+      - ehr-service
+      - lis-service
+      - ris-service
+      - pacs-service
+      - pharmacy-service
+      - pas-service
+      - billing-service
+
+volumes:
+  postgres_data:
+  minio_data:
