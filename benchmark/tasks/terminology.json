@@ -175,6 +175,119 @@
           "496": "J44.9"
         }
       }
+    },
+    {
+      "task_id": "HDH-TRM-006",
+      "category": "terminology",
+      "difficulty": "hard",
+      "title": "Cross-System Vocabulary Reconciliation",
+      "description": "The same medication may be coded differently across systems - RxNorm in Pharmacy, NDC in Billing, and free-text in EHR notes. For patient MRN-100042, reconcile all medication references to identify which refer to the same drug.",
+      "systems_required": ["ehr", "pharmacy", "billing"],
+      "max_turns": 25,
+      "success_criteria": {
+        "type": "f1_score",
+        "target_field": "medication_reconciliation",
+        "threshold": 0.75
+      },
+      "grading": {
+        "weight": 0.05,
+        "sub_goals": [
+          {"id": "found_pharmacy_meds", "description": "Found RxNorm medications", "points": 0.25},
+          {"id": "found_billing_meds", "description": "Found billing medication codes", "points": 0.25},
+          {"id": "matched_codes", "description": "Matched equivalent codes", "points": 0.5}
+        ]
+      },
+      "expected_response": {
+        "patient_queried": "string",
+        "medication_groups": [
+          {
+            "drug_name": "string (normalized)",
+            "codes": {
+              "rxnorm": "string or null",
+              "ndc": "string or null",
+              "local": "string or null"
+            },
+            "sources": ["pharmacy", "billing", "ehr"]
+          }
+        ],
+        "unique_medications": "integer",
+        "reconciliation_issues": ["list of unmatched codes"]
+      }
+    },
+    {
+      "task_id": "HDH-TRM-007",
+      "category": "terminology",
+      "difficulty": "expert",
+      "title": "Local Code Translation",
+      "description": "Some lab tests use local/proprietary codes instead of LOINC. Find Observations in LIS that use non-standard code systems and attempt to map them to standard LOINC codes based on the display name and units.",
+      "systems_required": ["lis"],
+      "max_turns": 30,
+      "success_criteria": {
+        "type": "threshold",
+        "target_field": "mapping_accuracy",
+        "threshold": 0.7
+      },
+      "grading": {
+        "weight": 0.06,
+        "sub_goals": [
+          {"id": "found_local_codes", "description": "Identified non-LOINC observations", "points": 0.3},
+          {"id": "analyzed_names", "description": "Analyzed test names/units", "points": 0.3},
+          {"id": "proposed_mappings", "description": "Proposed LOINC mappings", "points": 0.4}
+        ]
+      },
+      "expected_response": {
+        "local_code_observations": "integer",
+        "proposed_mappings": [
+          {
+            "local_code": "string",
+            "local_system": "string",
+            "display_name": "string",
+            "units": "string",
+            "proposed_loinc": "string",
+            "loinc_display": "string",
+            "confidence": "high|medium|low"
+          }
+        ],
+        "unmappable_codes": ["list of codes that couldn't be mapped"]
+      }
+    },
+    {
+      "task_id": "HDH-TRM-008",
+      "category": "terminology",
+      "difficulty": "expert",
+      "title": "Multi-Axial Code Resolution",
+      "description": "A diagnosis may be represented with different granularity across systems - SNOMED-CT in clinical notes (detailed), ICD-10-CM for billing (required specificity), ICD-9 in legacy data. Find all representations of 'Type 2 Diabetes with complications' and map them together.",
+      "systems_required": ["ehr", "billing"],
+      "max_turns": 30,
+      "success_criteria": {
+        "type": "f1_score",
+        "target_field": "code_clustering",
+        "threshold": 0.7
+      },
+      "grading": {
+        "weight": 0.06,
+        "sub_goals": [
+          {"id": "found_icd10", "description": "Found ICD-10 diabetes codes", "points": 0.25},
+          {"id": "found_icd9", "description": "Found ICD-9 diabetes codes", "points": 0.25},
+          {"id": "clustered", "description": "Clustered related codes", "points": 0.5}
+        ]
+      },
+      "expected_response": {
+        "concept": "Type 2 Diabetes with complications",
+        "code_clusters": [
+          {
+            "clinical_concept": "string (specific complication)",
+            "codes": {
+              "icd10": ["list of E11.x codes"],
+              "icd9": ["list of 250.xx codes"],
+              "snomed": ["list of SNOMED codes if found"]
+            },
+            "patient_count": "integer"
+          }
+        ],
+        "total_diabetes_codes_found": "integer",
+        "unmapped_codes": ["list of codes not fitting known patterns"]
+      }
     }
   ]
 }

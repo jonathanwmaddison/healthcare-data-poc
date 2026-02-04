@@ -113,12 +113,14 @@
 
   "scoring": {
     "category_weights": {
-      "patient_matching": 0.25,
-      "cross_system_integration": 0.20,
-      "cohort_building": 0.20,
-      "data_quality": 0.15,
-      "data_provenance": 0.12,
-      "terminology": 0.08
+      "patient_matching": 0.15,
+      "cross_system_integration": 0.15,
+      "cohort_building": 0.12,
+      "data_quality": 0.10,
+      "data_provenance": 0.08,
+      "terminology": 0.12,
+      "unstructured_data": 0.13,
+      "oncology_biomarker": 0.15
     },
     "difficulty_multipliers": {
       "easy": 1.0,

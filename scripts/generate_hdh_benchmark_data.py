@@ -74,6 +74,57 @@ ICD10_CONDITIONS = [
     ("G47.33", "Obstructive sleep apnea", 0.03),
     ("M17.11", "Primary osteoarthritis, right knee", 0.03),
     ("I25.10", "Atherosclerotic heart disease", 0.02),
+    # Oncology conditions for biomarker tasks
+    ("C50.911", "Malignant neoplasm of breast, unspecified", 0.02),
+    ("C34.90", "Malignant neoplasm of lung, unspecified", 0.015),
+    ("C18.9", "Malignant neoplasm of colon, unspecified", 0.01),
+]
+
+# Oncology biomarker tests
+BIOMARKER_TESTS = {
+    "HER2_IHC": {
+        "loinc": "18474-7",
+        "name": "HER2 Immunohistochemistry",
+        "results": [("0", 0.3), ("1+", 0.25), ("2+", 0.25), ("3+", 0.2)],
+        "cancer_codes": ["C50.911"],
+    },
+    "HER2_FISH": {
+        "loinc": "32996-3",
+        "name": "HER2 Gene Amplification FISH",
+        "results": [("negative", 0.6), ("positive", 0.25), ("equivocal", 0.15)],
+        "cancer_codes": ["C50.911"],
+    },
+    "EGFR_MUTATION": {
+        "loinc": "21659-7",
+        "name": "EGFR Gene Mutation Analysis",
+        "results": [("negative", 0.7), ("exon 19 deletion", 0.12), ("L858R", 0.1), ("T790M", 0.05), ("other mutation", 0.03)],
+        "cancer_codes": ["C34.90"],
+    },
+    "PD_L1": {
+        "loinc": "85147-9",
+        "name": "PD-L1 Expression by IHC",
+        "results": [("TPS <1%", 0.4), ("TPS 1-49%", 0.35), ("TPS >=50%", 0.25)],
+        "cancer_codes": ["C34.90", "C50.911"],
+    },
+    "ALK_FISH": {
+        "loinc": "69935-2",
+        "name": "ALK Gene Rearrangement FISH",
+        "results": [("negative", 0.95), ("positive", 0.05)],
+        "cancer_codes": ["C34.90"],
+    },
+    "KRAS_MUTATION": {
+        "loinc": "55206-9",
+        "name": "KRAS Gene Mutation Analysis",
+        "results": [("wild type", 0.6), ("G12C", 0.15), ("G12D", 0.1), ("G12V", 0.1), ("other mutation", 0.05)],
+        "cancer_codes": ["C34.90", "C18.9"],
+    },
+}
+
+# Pathology report templates
+PATHOLOGY_TEMPLATES = [
+    "Diagnosis: {cancer_type}. Grade: {grade}. Tumor size: {size} cm. Margins: {margins}. {nodes_text}. {biomarker_text}",
+    "FINAL DIAGNOSIS: Invasive {cancer_type}, {grade} differentiated. Greatest dimension {size} cm. {nodes_text}. Resection margins {margins}. {biomarker_text}",
+    "Pathologic staging: {stage}. {cancer_type}, {grade}. {nodes_text}. Margins: {margins}. Additional findings: {biomarker_text}",
 ]
 
 # Legacy ICD-9 codes (for terminology mapping tasks)
@@ -101,6 +152,68 @@ MEDICATIONS = [
     ("310430", "Gabapentin 300 MG Capsule", ["M54.5"], 0.04),
     ("312940", "Sertraline 50 MG Tablet", ["F32.9", "F41.9"], 0.06),
     ("310798", "Hydrochlorothiazide 25 MG Tablet", ["I10"], 0.05),
+]
+
+# Free-text dosage instructions (for unstructured data tasks)
+DOSAGE_INSTRUCTIONS = [
+    "Take 1 tablet by mouth once daily",
+    "Take 1 tablet by mouth twice daily with food",
+    "Take 2 tablets by mouth at bedtime",
+    "Take 1 tablet by mouth every morning",
+    "Take 1 tablet by mouth every 12 hours",
+    "Apply to affected area twice daily",
+    "Inhale 2 puffs every 4-6 hours as needed for shortness of breath",
+    "Take 1 capsule by mouth three times daily with meals",
+    "Take 1 tablet by mouth once daily in the morning with or without food",
+    "Take 1-2 tablets by mouth every 4-6 hours as needed for pain",
+    "Inject 10 units subcutaneously before breakfast",
+    "Take 1 tablet under the tongue as needed for chest pain",
+]
+
+# Clinical note templates (for unstructured data tasks)
+CLINICAL_NOTE_TEMPLATES = [
+    "Patient presents with {complaint}. Physical exam reveals {finding}. Assessment: {diagnosis}. Plan: {plan}.",
+    "Follow-up visit for {diagnosis}. Patient reports {symptom}. Vitals stable. Continue current medications.",
+    "Chief complaint: {complaint}. History: Patient has known {diagnosis}. Today complains of {symptom}. Will order {test}.",
+    "Routine visit. Patient with {diagnosis} well-controlled on current regimen. No new complaints.",
+    "Emergency visit for {complaint}. Labs show {finding}. Diagnosis: {diagnosis}. Patient admitted for observation.",
+]
+
+COMPLAINTS = ["chest pain", "shortness of breath", "fatigue", "headache", "abdominal pain", "dizziness", "cough"]
+FINDINGS = ["elevated blood pressure", "irregular heartbeat", "decreased breath sounds", "tenderness", "normal exam"]
+SYMPTOMS = ["improved symptoms", "worsening fatigue", "no change", "occasional dizziness", "mild discomfort"]
+PLANS = ["continue current therapy", "increase medication dose", "order labs", "referral to specialist", "lifestyle modifications"]
+TESTS = ["CBC", "CMP", "lipid panel", "chest X-ray", "EKG", "urinalysis"]
+
+# Allergy data (with mix of coded and free-text)
+ALLERGIES_CODED = [
+    ("7980", "Penicillin", "rash"),
+    ("2670", "Aspirin", "hives"),
+    ("3498", "Sulfa drugs", "anaphylaxis"),
+    ("1191", "Codeine", "nausea"),
+    ("70618", "Amoxicillin", "rash"),
+]
+
+ALLERGIES_FREETEXT = [
+    "Patient reports allergy to shellfish - develops hives",
+    "Latex allergy - skin irritation reported",
+    "Iodine contrast - history of reaction",
+    "Bee sting allergy - carries EpiPen",
+    "Seasonal allergies - pollen, grass",
+    "Patient states 'bad reaction' to morphine",
+    "Reports intolerance to metformin (GI upset)",
+]
+
+# Lab comments (for unstructured data tasks)
+LAB_COMMENTS = [
+    ("critical", "CRITICAL VALUE - Physician notified at {time}"),
+    ("critical", "PANIC VALUE - Results called to floor"),
+    ("quality", "Hemolyzed specimen - results may be affected"),
+    ("quality", "Lipemic specimen - triglycerides affected"),
+    ("quality", "Insufficient sample - partial results only"),
+    ("interpretation", "Results consistent with {condition}"),
+    ("interpretation", "Recommend repeat testing in {timeframe}"),
+    ("interpretation", "Values trending {direction} from previous"),
 ]
 
 LAB_PANELS = {
@@ -384,6 +497,7 @@ class HDHDataGenerator:
         for mpi_entry in self.master_patient_index:
             self._generate_patient_conditions(mpi_entry)
             self._generate_patient_medications(mpi_entry)
+            self._generate_biomarker_tests(mpi_entry)
             self._generate_patient_labs(mpi_entry)
             self._generate_patient_encounters(mpi_entry)
 
@@ -437,6 +551,9 @@ class HDHDataGenerator:
 
             if random.random() < prob:
                 med_id = f"med-{uuid.uuid4().hex[:8]}"
+                # Generate realistic dosage instruction
+                dosage_text = random.choice(DOSAGE_INSTRUCTIONS)
+
                 medication = {
                     "resourceType": "MedicationRequest",
                     "id": med_id,
@@ -448,10 +565,62 @@ class HDHDataGenerator:
                     },
                     "subject": {"reference": f"Patient/{pharmacy_id}"},
                     "authoredOn": self._random_date(365, 0),
-                    "dosageInstruction": [{"text": "Take as directed"}],
+                    "dosageInstruction": [{"text": dosage_text}],
                 }
                 self.clinical_data["medications"].append(medication)
                 mpi_entry["clinical_data"]["medication_ids"].append(med_id)
+
+    def _generate_biomarker_tests(self, mpi_entry: Dict):
+        """Generate biomarker tests for oncology patients"""
+        lis_id = mpi_entry["system_ids"]["lis"]
+        ehr_id = mpi_entry["system_ids"]["ehr"]
+
+        # Check if patient has cancer diagnosis
+        patient_conditions = [c["code"]["coding"][0]["code"]
+                            for c in self.clinical_data["conditions"]
+                            if c["subject"]["reference"].endswith(ehr_id)]
+
+        for test_name, test_info in BIOMARKER_TESTS.items():
+            # Only generate if patient has relevant cancer
+            relevant_cancers = [c for c in patient_conditions if c in test_info["cancer_codes"]]
+            if not relevant_cancers:
+                continue
+
+            # 80% chance to have biomarker testing if diagnosed with cancer
+            if random.random() > 0.8:
+                continue
+
+            # Generate test result
+            r = random.random()
+            cumulative = 0
+            result_value = test_info["results"][0][0]
+            for result, prob in test_info["results"]:
+                cumulative += prob
+                if r < cumulative:
+                    result_value = result
+                    break
+
+            result_id = f"biomarker-{uuid.uuid4().hex[:8]}"
+            test_date = self._random_date(365, 30)
+
+            observation = {
+                "resourceType": "Observation",
+                "id": result_id,
+                "status": "final",
+                "category": [{"coding": [{"system": "http://terminology.hl7.org/CodeSystem/observation-category", "code": "laboratory"}]}],
+                "code": {"coding": [{"system": "http://loinc.org", "code": test_info["loinc"], "display": test_info["name"]}]},
+                "subject": {"reference": f"Patient/{lis_id}"},
+                "effectiveDateTime": test_date,
+                "valueString": result_value,
+            }
+
+            # Add interpretive comment for positive results
+            if "positive" in result_value.lower() or "3+" in result_value or "deletion" in result_value or "mutation" in result_value:
+                observation["note"] = [{
+                    "text": f"POSITIVE RESULT: {test_info['name']} shows {result_value}. Patient may be eligible for targeted therapy. Recommend oncology consultation."
+                }]
+
+            self.clinical_data["lab_results"].append(observation)
 
     def _generate_patient_labs(self, mpi_entry: Dict):
         """Generate lab orders and results for a patient"""
@@ -511,6 +680,19 @@ class HDHDataGenerator:
                     "referenceRange": [{"low": {"value": low}, "high": {"value": high}}],
                     "interpretation": [{"coding": [{"code": interpretation}]}],
                 }
+
+                # Add lab comments (10% chance, higher for critical values)
+                add_comment = random.random() < 0.1 or (interpretation != "N" and random.random() < 0.3)
+                if add_comment:
+                    comment_type, comment_template = random.choice(LAB_COMMENTS)
+                    comment_text = comment_template.format(
+                        time=f"{random.randint(8,17):02d}:{random.randint(0,59):02d}",
+                        condition=random.choice(["diabetes", "renal disease", "infection", "anemia"]),
+                        timeframe=random.choice(["2 weeks", "1 month", "3 months"]),
+                        direction=random.choice(["up", "down", "stable"])
+                    )
+                    result["note"] = [{"text": comment_text}]
+
                 self.clinical_data["lab_results"].append(result)
 
     def _generate_patient_encounters(self, mpi_entry: Dict):

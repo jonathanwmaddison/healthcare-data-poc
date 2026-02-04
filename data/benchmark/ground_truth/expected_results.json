@@ -1,16 +1,16 @@
 {
   "description": "Expected results for benchmark scoring - DO NOT give to agents",
-  "generated_at": "2026-02-04T07:56:35.624571",
+  "generated_at": "2026-02-04T08:51:14.985053",
   "task_expectations": {
     "HDH-COH-001": {
-      "diabetic_count": 134,
+      "diabetic_count": 112,
       "count_range": [
-        114,
-        154
+        92,
+        132
       ]
     },
     "HDH-COH-002": {
-      "abnormal_glucose_count": 80
+      "abnormal_glucose_count": 71
     },
     "HDH-MPI-003": {
       "duplicate_count": 49,
@@ -20,10 +20,10 @@
       ]
     },
     "HDH-DQ-001": {
-      "orphaned_count": 30,
+      "orphaned_count": 118,
       "count_range": [
-        25,
-        35
+        113,
+        123
       ]
     },
     "HDH-DQ-002": {
