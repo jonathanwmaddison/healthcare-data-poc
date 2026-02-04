@@ -31,7 +31,7 @@
         "query_used": "string describing the query"
       },
       "ground_truth": {
-        "count_range": [180, 220],
+        "count_range": [114, 154],
         "icd10_codes_included": ["E11.9", "E11.65", "E11.21", "E11.22", "E11.40", "E11.51"]
       }
     },

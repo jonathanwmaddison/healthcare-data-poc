@@ -224,9 +224,18 @@ class HDHScorer:
 
         # For count-based thresholds
         if "count_range" in ground_truth:
-            response_count = self._get_nested_value(response, target_field.replace("_accuracy", "").replace("count", "") + "count") or \
-                           self._get_nested_value(response, "total_count") or \
-                           self._get_nested_value(response, target_field.split("_")[0] + "_count") or 0
+            # Try multiple field patterns to find the count
+            response_count = None
+            # First, look for any field ending in "_count" in the response
+            for key, value in response.items():
+                if key.endswith("_count") and isinstance(value, (int, float)):
+                    response_count = value
+                    break
+            # Fallback patterns
+            if response_count is None:
+                response_count = self._get_nested_value(response, "count") or \
+                               self._get_nested_value(response, "total_count") or \
+                               self._get_nested_value(response, "patient_count") or 0
 
             if isinstance(response_count, str):
                 try:
