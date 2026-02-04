@@ -1,0 +1,211 @@
+# Healthcare Data Harmony Benchmark
+
+## Instructions
+
+You are being evaluated on your ability to query and integrate healthcare data from multiple systems.
+Complete each query below and return your results in the specified JSON format.
+
+You have access to HTTP APIs. Use curl or equivalent to make requests.
+
+---
+
+# Healthcare Data Integration Task
+
+You are an AI agent tasked with querying and integrating data from a hospital's healthcare information systems.
+
+## Environment
+
+You have access to 6 healthcare systems, each exposing FHIR R4 REST APIs. Each system maintains its own patient registry with its own ID scheme. There is NO shared patient identifier across systems.
+
+## Available Systems
+
+| System | Base URL | Description |
+|--------|----------|-------------|
+| EHR | http://localhost:8001 | Electronic Health Records - patient demographics, conditions |
+| LIS | http://localhost:8002 | Laboratory - lab orders and results |
+| RIS | http://localhost:8003 | Radiology - imaging orders and studies |
+| Pharmacy | http://localhost:8005 | Pharmacy - medication orders |
+| PAS | http://localhost:8006 | Patient Administration - encounters |
+| Billing | http://localhost:8007 | Billing - claims and coverage |
+
+## API Reference
+
+All systems implement standard FHIR R4 REST endpoints:
+
+```
+GET /fhir/r4/{ResourceType}              # Search/list resources
+GET /fhir/r4/{ResourceType}/{id}         # Get resource by ID
+GET /fhir/r4/{ResourceType}?param=value  # Search with parameters
+GET /fhir/r4/metadata                    # Get capability statement
+```
+
+### Common Search Parameters
+
+- `subject=Patient/{id}` - Filter by patient reference
+- `patient={id}` - Alternative patient filter
+- `code={code}` - Filter by code (e.g., ICD-10, LOINC)
+- `status={status}` - Filter by status
+- `_count={n}` - Limit results
+- `_offset={n}` - Pagination offset
+
+### Resources by System
+
+**EHR (localhost:8001)**
+- Patient - demographics, identifiers
+- Condition - diagnoses (ICD-10 coded)
+
+**LIS (localhost:8002)**
+- Patient - lab system patient registry
+- ServiceRequest - lab orders
+- Observation - lab results (LOINC coded)
+
+**RIS (localhost:8003)**
+- Patient - radiology patient registry
+- ServiceRequest - imaging orders
+
+**Pharmacy (localhost:8005)**
+- Patient - pharmacy patient registry
+- MedicationRequest - prescriptions (RxNorm coded)
+
+**PAS (localhost:8006)**
+- Patient - ADT patient registry
+- Encounter - visits, admissions
+
+**Billing (localhost:8007)**
+- Patient - billing patient registry
+- Claim - insurance claims
+
+## Important Notes
+
+1. **No Shared Patient ID**: Each system has its own patient ID scheme. To find the same patient across systems, you must match on demographics (name, DOB, etc.).
+
+2. **Data Quality Varies**: Real healthcare data has inconsistencies - name spelling variations, missing fields, duplicate records.
+
+3. **FHIR References**: Related resources reference patients like `"subject": {"reference": "Patient/MRN-100042"}` - the ID is system-specific.
+
+## Example Queries
+
+```bash
+# List patients in EHR
+curl http://localhost:8001/fhir/r4/Patient
+
+# Get specific patient
+curl http://localhost:8001/fhir/r4/Patient/MRN-100001
+
+# Find conditions for a patient
+curl "http://localhost:8001/fhir/r4/Condition?subject=Patient/MRN-100001"
+
+# Search lab results by LOINC code
+curl "http://localhost:8002/fhir/r4/Observation?code=2345-7"
+
+# Find medications for a patient
+curl "http://localhost:8005/fhir/r4/MedicationRequest?subject=Patient/RX-400001"
+```
+
+## Your Tasks
+
+Complete the benchmark queries provided. For each query, return your results in the specified JSON format.
+
+---
+
+*This prompt is provided by the Healthcare Data Harmony Benchmark. Do not request additional hints or ground truth data.*
+
+---
+
+## Benchmark Queries
+
+Complete each of the following queries. Return results in valid JSON matching the response_format.
+
+### Q001: Patient 360 View
+
+**Difficulty:** medium
+
+**Task:** Find all clinical data for the patient with EHR ID MRN-100042. This patient exists in multiple systems under different IDs. Return the patient's IDs in each system and summarize their clinical data.
+
+**Response Format:**
+```json
+{"patient_ids":{"ehr":"string - patient ID in EHR system","lis":"string - patient ID in LIS system (if found)","ris":"string - patient ID in RIS system (if found)","pharmacy":"string - patient ID in Pharmacy system (if found)","pas":"string - patient ID in PAS system (if found)","billing":"string - patient ID in Billing system (if found)"},"clinical_summary":{"conditions":["list of condition descriptions"],"medications":["list of medication names"],"recent_labs":["list of recent lab results"],"encounters":["list of encounter types/dates"]}}
+```
+
+---
+
+### Q002: Diabetic Patient Cohort
+
+**Difficulty:** easy
+
+**Task:** Find all patients diagnosed with Type 2 Diabetes. The diagnosis is recorded in the EHR system using ICD-10 codes starting with E11.
+
+**Response Format:**
+```json
+{"total_count":"integer - number of diabetic patients found","patient_ids":["list of EHR patient IDs with diabetes diagnosis"]}
+```
+
+---
+
+### Q003: Abnormal Glucose Results
+
+**Difficulty:** medium
+
+**Task:** Find all patients who have had abnormal glucose lab results. Glucose is identified by LOINC code 2345-7. Abnormal results have interpretation code 'H' (high) or 'L' (low).
+
+**Response Format:**
+```json
+{"total_count":"integer - number of patients with abnormal glucose","patient_ids":["list of LIS patient IDs with abnormal glucose"],"details":[{"patient_id":"string","value":"number","interpretation":"H or L","date":"date of result"}]}
+```
+
+---
+
+### Q004: Duplicate Patient Detection
+
+**Difficulty:** hard
+
+**Task:** Identify patient records that appear to be duplicates - the same real person registered multiple times with different IDs. Look for patients with matching or very similar demographics (name, date of birth) but different patient IDs within the same system.
+
+**Response Format:**
+```json
+{"duplicate_groups":[{"likely_same_person":true,"confidence":"high/medium/low","records":[{"system":"string - which system","patient_id":"string","name":"string","birth_date":"string"}],"matching_criteria":"string - why these are likely duplicates"}],"total_duplicate_groups":"integer"}
+```
+
+---
+
+### Q005: Cross-System Cohort Query
+
+**Difficulty:** hard
+
+**Task:** Find patients who meet ALL of the following criteria: (1) Have a Type 2 Diabetes diagnosis in the EHR (ICD-10 E11.x), (2) Have an active metformin prescription in the Pharmacy system (RxNorm 860975), (3) Have had an HbA1c lab test in the LIS (LOINC 4548-4). This requires matching the same patient across three different systems.
+
+**Response Format:**
+```json
+{"patients":[{"ehr_id":"string - EHR patient ID","pharmacy_id":"string - Pharmacy patient ID","lis_id":"string - LIS patient ID","matching_confidence":"high/medium/low","diabetes_diagnosis":"string - ICD-10 code","metformin_status":"active/inactive","latest_hba1c":{"value":"number","date":"string"}}],"total_count":"integer"}
+```
+
+---
+
+### Q006: Data Quality Issues
+
+**Difficulty:** medium
+
+**Task:** Identify data quality problems in the LIS system: (1) Orphaned results - Observation resources that have no basedOn reference to a ServiceRequest (results without orders), (2) Abandoned orders - ServiceRequest resources with status 'active' but authoredOn date more than 100 days ago (orders that were never completed).
+
+**Response Format:**
+```json
+{"orphaned_results":{"count":"integer","sample_ids":["list of up to 5 Observation IDs without basedOn"]},"abandoned_orders":{"count":"integer","sample_ids":["list of up to 5 old active ServiceRequest IDs"]}}
+```
+
+---
+
+
+## Response Instructions
+
+For each query, provide your response in the following format:
+
+```json
+{
+  "query_id": "Q001",
+  "response": { ... your response matching the response_format ... },
+  "api_calls_made": [ ... list of API calls you made ... ],
+  "reasoning": "Brief explanation of your approach"
+}
+```
+
+Submit all responses as a JSON array.

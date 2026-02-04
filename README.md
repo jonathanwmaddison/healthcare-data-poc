@@ -1,203 +1,164 @@
-# Healthcare Data System POC
+# Healthcare Data Harmony Benchmark
 
-A dockerized proof-of-concept replicating a large hospital's healthcare data infrastructure with realistic FHIR R4 APIs.
+A benchmark for evaluating AI agents and data pipelines on realistic healthcare data integration challenges.
+
+## The Challenge
+
+Healthcare data is fragmented across multiple systems, each with different patient IDs, data formats, and quality issues. This benchmark tests how well AI agents can:
+
+1. **Discover** APIs across multiple healthcare systems
+2. **Match** patient identities without shared identifiers
+3. **Query** and aggregate clinical data from disparate sources
+4. **Handle** real-world data quality problems
 
 ## Quick Start
 
 ```bash
-docker-compose up --build
+# Clone the repo
+git clone https://github.com/your-org/healthcare-data-benchmark.git
+cd healthcare-data-benchmark
+
+# Start the benchmark environment
+docker-compose up -d
+
+# Validate setup
+./scripts/validate_benchmark.sh
+
+# Run the benchmark harness
+./scripts/run_benchmark.sh
 ```
 
-That's it! All services will start automatically with seed data.
+## How It Works
 
-## Services
+### Data Fragmentation
 
-| Service | Port | Description |
-|---------|------|-------------|
-| **API Gateway** | 8000 | Unified entry point |
-| **EHR** | 8001 | Electronic Health Records |
-| **LIS** | 8002 | Laboratory Information System |
-| **RIS** | 8003 | Radiology Information System |
-| **PACS** | 8004 | Picture Archiving (DICOMweb) |
-| **Pharmacy** | 8005 | Medication Management |
-| **PAS** | 8006 | Patient Administration (ADT) |
-| **Billing** | 8007 | Claims & Coverage |
-| **Integration Engine** | 8008 | Message Routing |
-| **RabbitMQ** | 15672 | Message Broker UI |
-| **MinIO** | 9001 | Object Storage UI |
+The benchmark simulates 6 healthcare systems, each with **its own patient ID scheme**:
 
-## API Examples
+```
+Same patient "Margaret Martin" appears as:
 
-### Get a Patient
+  EHR:      MRN-100042    "M. Martin"        DOB: 1950-12-14
+  LIS:      LAB-200042    "Margaret Martin"  DOB: null
+  Pharmacy: RX-400042     "Margaret Maroin"  DOB: 1950-12-14  (typo!)
+  Billing:  ACCT-600042   "M. Martin"        DOB: null
+```
+
+### Benchmark Tasks
+
+| Task | Difficulty | Description |
+|------|------------|-------------|
+| Q001 | Medium | Aggregate all data for one patient across systems |
+| Q002 | Easy | Find all diabetic patients (single-system query) |
+| Q003 | Medium | Find patients with abnormal lab results |
+| Q004 | Hard | Identify duplicate patient records |
+| Q005 | Hard | Cross-system cohort: diabetics on metformin with recent HbA1c |
+| Q006 | Medium | Detect data quality issues (orphaned records) |
+
+### What the Agent Receives
+
+The benchmark harness provides agents with **only**:
+
+1. **System prompt** with FHIR basics
+2. **API catalog** listing available endpoints
+3. **Benchmark queries** (tasks to complete)
+
+Agents do **not** receive:
+- Ground truth patient mappings
+- Expected answers
+- Hints about data quality issues
+
+## Running the Benchmark
+
+### Option 1: Interactive Mode
+
 ```bash
-curl http://localhost:8000/ehr/fhir/r4/Patient/pat-001
+# Generate the agent prompt
+./scripts/generate_agent_prompt.sh > agent_prompt.txt
+
+# Give this to your agent and collect responses
+# Then score the results
+./scripts/score_results.sh agent_responses.json
 ```
 
-### Search Patients
+### Option 2: Automated Harness
+
 ```bash
-curl "http://localhost:8000/ehr/fhir/r4/Patient?name=Smith"
+# Configure your agent endpoint
+export AGENT_API_URL="http://localhost:8080/v1/chat"
+export AGENT_API_KEY="your-key"
+
+# Run full benchmark
+./scripts/run_benchmark.sh --output results/
+
+# View scores
+cat results/scores.json
 ```
 
-### Create Lab Order
-```bash
-curl -X POST http://localhost:8000/lis/fhir/r4/ServiceRequest \
-  -H "Content-Type: application/json" \
-  -d '{
-    "resourceType": "ServiceRequest",
-    "status": "active",
-    "intent": "order",
-    "code": {"coding": [{"system": "http://loinc.org", "code": "24323-8", "display": "Comprehensive metabolic panel"}]},
-    "subject": {"reference": "Patient/pat-001"}
-  }'
+## Scoring
+
+### Patient Matching (Q001, Q004, Q005)
+```
+Precision = Correct matches / Total claimed matches
+Recall = Correct matches / Total true matches
+F1 = 2 * (Precision * Recall) / (Precision + Recall)
 ```
 
-### Process Lab Order (generates results)
-```bash
-curl -X POST http://localhost:8000/lis/fhir/r4/ServiceRequest/{order_id}/\$process
+### Cohort Queries (Q002, Q003, Q006)
+```
+Accuracy = Correct patients / Expected patients
 ```
 
-### Admit Patient
-```bash
-curl -X POST "http://localhost:8000/pas/fhir/r4/Encounter/\$admit?patient_id=pat-001&location_id=loc-med-surg"
+### Aggregate Score
+```
+Total = Σ (query_score × query_weight)
 ```
 
-### Create Medication Order
-```bash
-curl -X POST http://localhost:8000/pharmacy/fhir/r4/MedicationRequest \
-  -H "Content-Type: application/json" \
-  -d '{
-    "resourceType": "MedicationRequest",
-    "status": "active",
-    "intent": "order",
-    "medicationCodeableConcept": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm", "code": "197361", "display": "Lisinopril 10 MG"}]},
-    "subject": {"reference": "Patient/pat-001"},
-    "dosageInstruction": [{"text": "Take 1 tablet daily"}]
-  }'
-```
-
-### Dispense Medication
-```bash
-curl -X POST http://localhost:8000/pharmacy/fhir/r4/MedicationRequest/{rx_id}/\$dispense
-```
-
-### Submit Insurance Claim
-```bash
-curl -X POST http://localhost:8000/billing/fhir/r4/Claim/{claim_id}/\$submit
-```
-
-## FHIR Resources by System
-
-### EHR (Electronic Health Record)
-- Patient, Practitioner, Organization
-- Encounter, Condition, Procedure
-- AllergyIntolerance, Observation
-
-### LIS (Laboratory)
-- ServiceRequest (lab orders)
-- Specimen, Observation
-- DiagnosticReport
-
-### RIS (Radiology)
-- ServiceRequest (imaging orders)
-- Appointment, ImagingStudy
-- DiagnosticReport
-
-### PACS (Imaging)
-- DICOMweb QIDO-RS (query)
-- DICOMweb WADO-RS (retrieve)
-- DICOMweb STOW-RS (store)
-
-### Pharmacy
-- Medication, MedicationRequest
-- MedicationDispense
-- MedicationAdministration
-
-### PAS (Patient Administration)
-- Patient (MPI)
-- Encounter (ADT)
-- Appointment, Schedule, Slot
-- Location
-
-### Billing
-- Coverage, Claim
-- ClaimResponse, ExplanationOfBenefit
-- ChargeItem, Account
-
-## Message Events
-
-The integration engine routes events via RabbitMQ:
-
-| Event | Description |
-|-------|-------------|
-| `adt.a01` | Patient Admitted |
-| `adt.a02` | Patient Transferred |
-| `adt.a03` | Patient Discharged |
-| `lab.result.final` | Lab Results Ready |
-| `rad.report.final` | Radiology Report Ready |
-| `pharmacy.dispense` | Medication Dispensed |
-| `billing.charge.posted` | Charge Posted |
-
-## Code Systems
-
-| System | Usage |
-|--------|-------|
-| LOINC | Lab tests |
-| SNOMED CT | Clinical terms |
-| ICD-10-CM | Diagnoses |
-| RxNorm | Medications |
-| CPT | Procedures |
-
-## Seed Data
-
-Pre-loaded with:
-- 5 patients with demographics
-- 2 practitioners
-- Medical conditions & allergies
-- Lab and imaging orders
-- Medication prescriptions
-- Insurance coverage
-
-## API Documentation
-
-Each service provides Swagger docs:
-- EHR: http://localhost:8001/docs
-- LIS: http://localhost:8002/docs
-- RIS: http://localhost:8003/docs
-- PACS: http://localhost:8004/docs
-- Pharmacy: http://localhost:8005/docs
-- PAS: http://localhost:8006/docs
-- Billing: http://localhost:8007/docs
-
-FHIR CapabilityStatement:
-```bash
-curl http://localhost:8001/fhir/r4/metadata
-```
-
-## Architecture
+## Repository Structure
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│                    API Gateway (:8000)                   │
-└─────────────────────────────────────────────────────────┘
-         │         │         │         │         │
-    ┌────┴───┐ ┌───┴───┐ ┌───┴───┐ ┌───┴───┐ ┌───┴───┐
-    │  EHR   │ │  LIS  │ │  RIS  │ │Pharmacy│ │  PAS  │
-    │ :8001  │ │ :8002 │ │ :8003 │ │ :8005  │ │ :8006 │
-    └────┬───┘ └───┬───┘ └───┬───┘ └───┬───┘ └───┬───┘
-         │         │         │         │         │
-         └─────────┴────┬────┴─────────┴─────────┘
-                        │
-              ┌─────────┴─────────┐
-              │   Integration     │
-              │   Engine :8008    │
-              └─────────┬─────────┘
-                        │
-              ┌─────────┴─────────┐
-              │    RabbitMQ       │
-              │   :5672/:15672    │
-              └───────────────────┘
+healthcare-data-benchmark/
+├── README.md                    # This file
+├── BENCHMARK.md                 # Detailed benchmark documentation
+├── docker-compose.yml           # Container orchestration
+├── data/
+│   ├── seed/                    # System seed data (loaded into DBs)
+│   └── benchmark/
+│       ├── agent_prompt.md      # What agents receive
+│       ├── api_catalog.json     # API discovery info (for agents)
+│       ├── benchmark_queries.json  # Tasks (for agents)
+│       └── ground_truth/        # Scoring data (NOT for agents)
+│           ├── master_patient_index.json
+│           └── expected_results.json
+├── scripts/
+│   ├── validate_benchmark.sh    # Environment validation
+│   ├── generate_agent_prompt.sh # Generate agent input
+│   ├── run_benchmark.sh         # Automated benchmark runner
+│   └── score_results.py         # Scoring script
+└── services/                    # Healthcare system implementations
 ```
+
+## Adding Your Own Queries
+
+1. Add query to `data/benchmark/benchmark_queries.json`
+2. Add expected results to `data/benchmark/ground_truth/expected_results.json`
+3. Update scoring weights in `scripts/score_results.py`
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 ## License
 
-MIT
+MIT License - see [LICENSE](LICENSE)
+
+## Citation
+
+If you use this benchmark in your research, please cite:
+
+```bibtex
+@software{healthcare_data_benchmark,
+  title = {Healthcare Data Harmony Benchmark},
+  year = {2024},
+  url = {https://github.com/your-org/healthcare-data-benchmark}
+}
+```

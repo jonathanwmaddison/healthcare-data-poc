@@ -1,0 +1,65 @@
+{
+  "description": "Available APIs for querying healthcare data",
+  "systems": {
+    "ehr": {
+      "name": "Electronic Health Record",
+      "base_url": "http://localhost:8001",
+      "resources": [
+        "Patient",
+        "Condition"
+      ],
+      "patient_id_prefix": "MRN-",
+      "example_query": "GET /Patient?_id=MRN-100001"
+    },
+    "lis": {
+      "name": "Laboratory Information System",
+      "base_url": "http://localhost:8002",
+      "resources": [
+        "Patient",
+        "ServiceRequest",
+        "Observation"
+      ],
+      "patient_id_prefix": "LAB-",
+      "example_query": "GET /Observation?subject=Patient/LAB-200001"
+    },
+    "ris": {
+      "name": "Radiology Information System",
+      "base_url": "http://localhost:8003",
+      "resources": [
+        "Patient",
+        "ServiceRequest",
+        "ImagingStudy"
+      ],
+      "patient_id_prefix": "RAD-"
+    },
+    "pharmacy": {
+      "name": "Pharmacy System",
+      "base_url": "http://localhost:8005",
+      "resources": [
+        "Patient",
+        "MedicationRequest"
+      ],
+      "patient_id_prefix": "RX-"
+    },
+    "pas": {
+      "name": "Patient Administration System",
+      "base_url": "http://localhost:8006",
+      "resources": [
+        "Patient",
+        "Encounter"
+      ],
+      "patient_id_prefix": "ADT-"
+    },
+    "billing": {
+      "name": "Billing System",
+      "base_url": "http://localhost:8007",
+      "resources": [
+        "Patient",
+        "Claim",
+        "Coverage"
+      ],
+      "patient_id_prefix": "ACCT-"
+    }
+  },
+  "note": "Each system has its own patient ID scheme. The same physical patient will have different IDs in each system."
+}

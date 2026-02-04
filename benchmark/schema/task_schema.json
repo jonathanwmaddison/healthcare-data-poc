@@ -1,0 +1,131 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "HDH-Bench Task Schema",
+  "description": "Schema for Healthcare Data Harmonization Benchmark tasks",
+  "type": "object",
+  "required": ["task_id", "category", "difficulty", "description", "success_criteria"],
+  "properties": {
+    "task_id": {
+      "type": "string",
+      "pattern": "^HDH-[A-Z]{2,4}-[0-9]{3}$",
+      "description": "Unique task identifier (e.g., HDH-MPI-001)"
+    },
+    "category": {
+      "type": "string",
+      "enum": ["patient_matching", "cohort_building", "data_quality", "data_provenance", "terminology"],
+      "description": "Task category"
+    },
+    "difficulty": {
+      "type": "string",
+      "enum": ["easy", "medium", "hard", "expert"],
+      "description": "Difficulty tier"
+    },
+    "title": {
+      "type": "string",
+      "description": "Short human-readable title"
+    },
+    "description": {
+      "type": "string",
+      "description": "Full task description given to agent"
+    },
+    "systems_required": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["ehr", "lis", "ris", "pharmacy", "pas", "billing"]
+      },
+      "description": "Which systems the task requires accessing"
+    },
+    "tools_available": {
+      "type": "array",
+      "items": {"type": "string"},
+      "default": ["fhir_api"],
+      "description": "Tools/APIs available to agent"
+    },
+    "max_turns": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 50,
+      "default": 20,
+      "description": "Maximum interaction turns allowed"
+    },
+    "time_limit_seconds": {
+      "type": "integer",
+      "default": 300,
+      "description": "Time limit for task completion"
+    },
+    "success_criteria": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["exact_match", "set_match", "threshold", "f1_score", "custom"],
+          "description": "How to evaluate success"
+        },
+        "target_field": {
+          "type": "string",
+          "description": "Field in response to evaluate"
+        },
+        "threshold": {
+          "type": "number",
+          "description": "Minimum score for threshold-based success"
+        },
+        "partial_credit": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether to award partial credit"
+        }
+      }
+    },
+    "grading": {
+      "type": "object",
+      "properties": {
+        "weight": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Weight in overall benchmark score"
+        },
+        "sub_goals": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {"type": "string"},
+              "description": {"type": "string"},
+              "points": {"type": "number"}
+            }
+          },
+          "description": "Sub-goals for progress rate calculation"
+        }
+      }
+    },
+    "expected_response": {
+      "type": "object",
+      "description": "Expected response format (for validation)"
+    },
+    "ground_truth": {
+      "type": "object",
+      "description": "Ground truth for scoring (hidden from agent)"
+    },
+    "hints": {
+      "type": "object",
+      "properties": {
+        "level_1": {"type": "string"},
+        "level_2": {"type": "string"},
+        "level_3": {"type": "string"}
+      },
+      "description": "Progressive hints (for different evaluation modes)"
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "author": {"type": "string"},
+        "created": {"type": "string", "format": "date"},
+        "version": {"type": "string"},
+        "tags": {"type": "array", "items": {"type": "string"}}
+      }
+    }
+  }
+}

@@ -1,0 +1,108 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "HDH-Bench Leaderboard Entry",
+  "type": "object",
+  "required": ["submission_id", "model", "scores", "timestamp"],
+  "properties": {
+    "submission_id": {
+      "type": "string",
+      "description": "Unique submission identifier"
+    },
+    "model": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": {"type": "string"},
+        "version": {"type": "string"},
+        "provider": {"type": "string"},
+        "size_params": {"type": "string"},
+        "context_window": {"type": "integer"},
+        "is_open_source": {"type": "boolean"}
+      }
+    },
+    "agent_framework": {
+      "type": "object",
+      "properties": {
+        "name": {"type": "string"},
+        "version": {"type": "string"},
+        "url": {"type": "string"}
+      }
+    },
+    "evaluation_config": {
+      "type": "object",
+      "properties": {
+        "information_mode": {"type": "string"},
+        "interaction_mode": {"type": "string"},
+        "reasoning_mode": {"type": "string"},
+        "hint_level": {"type": "string"}
+      }
+    },
+    "scores": {
+      "type": "object",
+      "required": ["overall"],
+      "properties": {
+        "overall": {
+          "type": "object",
+          "properties": {
+            "success_rate": {"type": "number"},
+            "progress_rate": {"type": "number"},
+            "f1_patient_matching": {"type": "number"},
+            "action_completion": {"type": "number"}
+          }
+        },
+        "by_category": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "success_rate": {"type": "number"},
+              "progress_rate": {"type": "number"},
+              "task_count": {"type": "integer"}
+            }
+          }
+        },
+        "by_difficulty": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "success_rate": {"type": "number"},
+              "task_count": {"type": "integer"}
+            }
+          }
+        }
+      }
+    },
+    "efficiency": {
+      "type": "object",
+      "properties": {
+        "total_turns": {"type": "integer"},
+        "avg_turns_per_task": {"type": "number"},
+        "total_tokens": {"type": "integer"},
+        "total_cost_usd": {"type": "number"},
+        "total_time_seconds": {"type": "number"}
+      }
+    },
+    "task_results": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "task_id": {"type": "string"},
+          "success": {"type": "boolean"},
+          "progress": {"type": "number"},
+          "turns_used": {"type": "integer"},
+          "time_seconds": {"type": "number"},
+          "error": {"type": "string"}
+        }
+      }
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "notes": {
+      "type": "string"
+    }
+  }
+}

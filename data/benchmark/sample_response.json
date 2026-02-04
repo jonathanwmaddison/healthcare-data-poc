@@ -1,0 +1,115 @@
+[
+  {
+    "query_id": "Q001",
+    "response": {
+      "patient_ids": {
+        "ehr": "MRN-100042",
+        "lis": "LAB-200042",
+        "ris": "RAD-300042",
+        "pharmacy": "RX-400042",
+        "pas": "ADT-500042",
+        "billing": "ACCT-600042"
+      },
+      "clinical_summary": {
+        "conditions": ["Type 2 Diabetes (E11.9)", "Hypertension (I10)"],
+        "medications": ["Metformin 500mg", "Lisinopril 10mg"],
+        "recent_labs": ["Glucose: 142 mg/dL (H)", "HbA1c: 7.2%"],
+        "encounters": ["Outpatient visit 2024-01-15", "Lab visit 2024-02-01"]
+      }
+    },
+    "api_calls_made": [
+      "GET http://localhost:8001/fhir/r4/Patient/MRN-100042",
+      "GET http://localhost:8001/fhir/r4/Condition?subject=Patient/MRN-100042",
+      "GET http://localhost:8002/fhir/r4/Patient?name=Martin",
+      "GET http://localhost:8005/fhir/r4/Patient?name=Martin"
+    ],
+    "reasoning": "Started with EHR patient, extracted demographics, searched other systems by name match"
+  },
+  {
+    "query_id": "Q002",
+    "response": {
+      "total_count": 195,
+      "patient_ids": ["MRN-100003", "MRN-100015", "MRN-100027", "..."]
+    },
+    "api_calls_made": [
+      "GET http://localhost:8001/fhir/r4/Condition?code=E11"
+    ],
+    "reasoning": "Searched EHR conditions for ICD-10 codes starting with E11"
+  },
+  {
+    "query_id": "Q003",
+    "response": {
+      "total_count": 150,
+      "patient_ids": ["LAB-200015", "LAB-200042", "..."],
+      "details": [
+        {"patient_id": "LAB-200015", "value": 250, "interpretation": "H", "date": "2024-01-20"}
+      ]
+    },
+    "api_calls_made": [
+      "GET http://localhost:8002/fhir/r4/Observation?code=2345-7"
+    ],
+    "reasoning": "Searched LIS observations for glucose LOINC code, filtered by interpretation"
+  },
+  {
+    "query_id": "Q004",
+    "response": {
+      "duplicate_groups": [
+        {
+          "likely_same_person": true,
+          "confidence": "high",
+          "records": [
+            {"system": "ehr", "patient_id": "MRN-100042", "name": "M. Martin", "birth_date": "1950-12-14"},
+            {"system": "ehr", "patient_id": "DUP-700123", "name": "Margaret Martin", "birth_date": "1950-12-14"}
+          ],
+          "matching_criteria": "Same DOB, similar name (M. vs Margaret)"
+        }
+      ],
+      "total_duplicate_groups": 45
+    },
+    "api_calls_made": [
+      "GET http://localhost:8001/fhir/r4/Patient?_count=1000"
+    ],
+    "reasoning": "Retrieved all patients, grouped by DOB, compared names for similarity"
+  },
+  {
+    "query_id": "Q005",
+    "response": {
+      "patients": [
+        {
+          "ehr_id": "MRN-100042",
+          "pharmacy_id": "RX-400042",
+          "lis_id": "LAB-200042",
+          "matching_confidence": "high",
+          "diabetes_diagnosis": "E11.9",
+          "metformin_status": "active",
+          "latest_hba1c": {"value": 7.2, "date": "2024-01-15"}
+        }
+      ],
+      "total_count": 35
+    },
+    "api_calls_made": [
+      "GET http://localhost:8001/fhir/r4/Condition?code=E11",
+      "GET http://localhost:8005/fhir/r4/MedicationRequest?code=860975",
+      "GET http://localhost:8002/fhir/r4/Observation?code=4548-4"
+    ],
+    "reasoning": "Found diabetics in EHR, metformin patients in pharmacy, HbA1c in LIS, matched by demographics"
+  },
+  {
+    "query_id": "Q006",
+    "response": {
+      "orphaned_results": {
+        "count": 30,
+        "sample_ids": ["orphan-res-abc123", "orphan-res-def456"]
+      },
+      "abandoned_orders": {
+        "count": 20,
+        "sample_ids": ["abandoned-abc123", "abandoned-def456"]
+      }
+    },
+    "api_calls_made": [
+      "GET http://localhost:8002/fhir/r4/Observation",
+      "GET http://localhost:8002/fhir/r4/ServiceRequest?status=active"
+    ],
+    "reasoning": "Checked Observations for missing basedOn, ServiceRequests for old active orders"
+  }
+]

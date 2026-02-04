@@ -32,3 +32,9 @@ minio_data/
 # OS
 .DS_Store
 Thumbs.db
+
+# Benchmark results (user-generated)
+results/
+agent_responses.json
+scores.json
+*.tmp

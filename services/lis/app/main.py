@@ -15,6 +15,7 @@ from fastapi import HTTPException
 from shared.base_service import FHIRService, create_fhir_app
 
 SUPPORTED_RESOURCES = [
+    "Patient",  # Each system has its own patient registry
     "ServiceRequest",
     "Specimen",
     "Observation",
