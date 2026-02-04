@@ -1,0 +1,390 @@
+{
+  "category": "terminology",
+  "description": "Tasks requiring understanding and mapping of clinical terminologies",
+  "tasks": [
+    {
+      "task_id": "HDH-TRM-001",
+      "category": "terminology",
+      "difficulty": "easy",
+      "title": "Identify Code Systems in Use",
+      "description": "Survey the data across EHR, LIS, and Pharmacy to identify which code systems are used for different data types (diagnoses, labs, medications). Report the code system URIs found.",
+      "systems_required": [
+        "ehr",
+        "lis",
+        "pharmacy"
+      ],
+      "max_turns": 15,
+      "success_criteria": {
+        "type": "set_match",
+        "target_field": "code_systems"
+      },
+      "grading": {
+        "weight": 0.03
+      },
+      "expected_response": {
+        "code_systems_found": {
+          "diagnoses": [
+            "list of code system URIs"
+          ],
+          "lab_tests": [
+            "list of code system URIs"
+          ],
+          "medications": [
+            "list of code system URIs"
+          ]
+        },
+        "examples": {
+          "diagnosis_example": {
+            "system": "string",
+            "code": "string",
+            "display": "string"
+          },
+          "lab_example": {
+            "system": "string",
+            "code": "string",
+            "display": "string"
+          },
+          "medication_example": {
+            "system": "string",
+            "code": "string",
+            "display": "string"
+          }
+        }
+      }
+    },
+    {
+      "task_id": "HDH-TRM-002",
+      "category": "terminology",
+      "difficulty": "medium",
+      "title": "Find Legacy ICD-9 Codes",
+      "description": "Find all conditions in the EHR that use legacy ICD-9 codes (system: http://hl7.org/fhir/sid/icd-9-cm) instead of current ICD-10 codes. These are records migrated from an older system.",
+      "systems_required": [
+        "ehr"
+      ],
+      "max_turns": 15,
+      "success_criteria": {
+        "type": "threshold",
+        "target_field": "count_accuracy",
+        "threshold": 0.9
+      },
+      "grading": {
+        "weight": 0.04
+      },
+      "expected_response": {
+        "legacy_icd9_count": "integer",
+        "sample_records": [
+          {
+            "condition_id": "string",
+            "icd9_code": "string",
+            "display": "string",
+            "patient_id": "string"
+          }
+        ],
+        "percentage_of_total": "number"
+      }
+    },
+    {
+      "task_id": "HDH-TRM-003",
+      "category": "terminology",
+      "difficulty": "medium",
+      "title": "LOINC Code Lookup",
+      "description": "Given the clinical concept 'Hemoglobin A1c' (HbA1c), find all lab results in the LIS that measure this. The standard LOINC code is 4548-4, but there may be other related codes.",
+      "systems_required": [
+        "lis"
+      ],
+      "max_turns": 15,
+      "success_criteria": {
+        "type": "threshold",
+        "target_field": "recall",
+        "threshold": 0.9
+      },
+      "grading": {
+        "weight": 0.03
+      },
+      "expected_response": {
+        "loinc_codes_found": [
+          "list of LOINC codes for HbA1c"
+        ],
+        "result_count": "integer",
+        "sample_results": [
+          {
+            "observation_id": "string",
+            "loinc_code": "string",
+            "value": "number",
+            "unit": "string",
+            "patient_id": "string"
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "HDH-TRM-004",
+      "category": "terminology",
+      "difficulty": "hard",
+      "title": "Find All Diabetes-Related Codes",
+      "description": "Find ALL records related to diabetes across all systems, accounting for different terminologies: ICD-10 E11.x (Type 2), ICD-10 E10.x (Type 1), ICD-9 250.xx (legacy), SNOMED codes, and medications like metformin, insulin.",
+      "systems_required": [
+        "ehr",
+        "pharmacy",
+        "lis"
+      ],
+      "max_turns": 30,
+      "success_criteria": {
+        "type": "f1_score",
+        "target_field": "diabetes_records",
+        "threshold": 0.8
+      },
+      "grading": {
+        "weight": 0.05
+      },
+      "expected_response": {
+        "diabetes_conditions": {
+          "icd10_type2": {
+            "code_pattern": "E11.x",
+            "count": "integer"
+          },
+          "icd10_type1": {
+            "code_pattern": "E10.x",
+            "count": "integer"
+          },
+          "icd9_legacy": {
+            "code_pattern": "250.xx",
+            "count": "integer"
+          }
+        },
+        "diabetes_medications": {
+          "metformin": {
+            "rxnorm": "860975",
+            "count": "integer"
+          },
+          "insulin_products": {
+            "count": "integer"
+          }
+        },
+        "diabetes_labs": {
+          "hba1c": {
+            "loinc": "4548-4",
+            "count": "integer"
+          },
+          "glucose": {
+            "loinc": "2345-7",
+            "count": "integer"
+          }
+        },
+        "total_diabetes_related_records": "integer",
+        "unique_patients_with_diabetes": "integer"
+      }
+    },
+    {
+      "task_id": "HDH-TRM-005",
+      "category": "terminology",
+      "difficulty": "expert",
+      "title": "Code Mapping Challenge",
+      "description": "Given a list of ICD-9 codes from legacy records, provide the equivalent ICD-10 codes. Then verify by finding if both codes appear for the same patients (indicating mapped data).",
+      "systems_required": [
+        "ehr"
+      ],
+      "max_turns": 25,
+      "success_criteria": {
+        "type": "exact_match",
+        "target_field": "code_mappings"
+      },
+      "grading": {
+        "weight": 0.05
+      },
+      "expected_response": {
+        "icd9_to_icd10_mappings": [
+          {
+            "icd9_code": "250.00",
+            "icd9_display": "string",
+            "icd10_equivalent": "E11.9",
+            "icd10_display": "string",
+            "patients_with_both": "integer"
+          },
+          {
+            "icd9_code": "401.9",
+            "icd9_display": "string",
+            "icd10_equivalent": "I10",
+            "icd10_display": "string",
+            "patients_with_both": "integer"
+          }
+        ],
+        "mapping_confidence": "high|medium|low"
+      }
+    },
+    {
+      "task_id": "HDH-TRM-006",
+      "category": "terminology",
+      "difficulty": "hard",
+      "title": "Cross-System Vocabulary Reconciliation",
+      "description": "The same medication may be coded differently across systems - RxNorm in Pharmacy, NDC in Billing, and free-text in EHR notes. For patient MRN-100042, reconcile all medication references to identify which refer to the same drug.",
+      "systems_required": [
+        "ehr",
+        "pharmacy",
+        "billing"
+      ],
+      "max_turns": 25,
+      "success_criteria": {
+        "type": "f1_score",
+        "target_field": "medication_reconciliation",
+        "threshold": 0.75
+      },
+      "grading": {
+        "weight": 0.05,
+        "sub_goals": [
+          {
+            "id": "found_pharmacy_meds",
+            "description": "Found RxNorm medications",
+            "points": 0.25
+          },
+          {
+            "id": "found_billing_meds",
+            "description": "Found billing medication codes",
+            "points": 0.25
+          },
+          {
+            "id": "matched_codes",
+            "description": "Matched equivalent codes",
+            "points": 0.5
+          }
+        ]
+      },
+      "expected_response": {
+        "patient_queried": "string",
+        "medication_groups": [
+          {
+            "drug_name": "string (normalized)",
+            "codes": {
+              "rxnorm": "string or null",
+              "ndc": "string or null",
+              "local": "string or null"
+            },
+            "sources": [
+              "pharmacy",
+              "billing",
+              "ehr"
+            ]
+          }
+        ],
+        "unique_medications": "integer",
+        "reconciliation_issues": [
+          "list of unmatched codes"
+        ]
+      }
+    },
+    {
+      "task_id": "HDH-TRM-007",
+      "category": "terminology",
+      "difficulty": "expert",
+      "title": "Local Code Translation",
+      "description": "Some lab tests use local/proprietary codes instead of LOINC. Find Observations in LIS that use non-standard code systems and attempt to map them to standard LOINC codes based on the display name and units.",
+      "systems_required": [
+        "lis"
+      ],
+      "max_turns": 30,
+      "success_criteria": {
+        "type": "threshold",
+        "target_field": "mapping_accuracy",
+        "threshold": 0.7
+      },
+      "grading": {
+        "weight": 0.06,
+        "sub_goals": [
+          {
+            "id": "found_local_codes",
+            "description": "Identified non-LOINC observations",
+            "points": 0.3
+          },
+          {
+            "id": "analyzed_names",
+            "description": "Analyzed test names/units",
+            "points": 0.3
+          },
+          {
+            "id": "proposed_mappings",
+            "description": "Proposed LOINC mappings",
+            "points": 0.4
+          }
+        ]
+      },
+      "expected_response": {
+        "local_code_observations": "integer",
+        "proposed_mappings": [
+          {
+            "local_code": "string",
+            "local_system": "string",
+            "display_name": "string",
+            "units": "string",
+            "proposed_loinc": "string",
+            "loinc_display": "string",
+            "confidence": "high|medium|low"
+          }
+        ],
+        "unmappable_codes": [
+          "list of codes that couldn't be mapped"
+        ]
+      }
+    },
+    {
+      "task_id": "HDH-TRM-008",
+      "category": "terminology",
+      "difficulty": "expert",
+      "title": "Multi-Axial Code Resolution",
+      "description": "A diagnosis may be represented with different granularity across systems - SNOMED-CT in clinical notes (detailed), ICD-10-CM for billing (required specificity), ICD-9 in legacy data. Find all representations of 'Type 2 Diabetes with complications' and map them together.",
+      "systems_required": [
+        "ehr",
+        "billing"
+      ],
+      "max_turns": 30,
+      "success_criteria": {
+        "type": "f1_score",
+        "target_field": "code_clustering",
+        "threshold": 0.7
+      },
+      "grading": {
+        "weight": 0.06,
+        "sub_goals": [
+          {
+            "id": "found_icd10",
+            "description": "Found ICD-10 diabetes codes",
+            "points": 0.25
+          },
+          {
+            "id": "found_icd9",
+            "description": "Found ICD-9 diabetes codes",
+            "points": 0.25
+          },
+          {
+            "id": "clustered",
+            "description": "Clustered related codes",
+            "points": 0.5
+          }
+        ]
+      },
+      "expected_response": {
+        "concept": "Type 2 Diabetes with complications",
+        "code_clusters": [
+          {
+            "clinical_concept": "string (specific complication)",
+            "codes": {
+              "icd10": [
+                "list of E11.x codes"
+              ],
+              "icd9": [
+                "list of 250.xx codes"
+              ],
+              "snomed": [
+                "list of SNOMED codes if found"
+              ]
+            },
+            "patient_count": "integer"
+          }
+        ],
+        "total_diabetes_codes_found": "integer",
+        "unmapped_codes": [
+          "list of codes not fitting known patterns"
+        ]
+      }
+    }
+  ]
+}
