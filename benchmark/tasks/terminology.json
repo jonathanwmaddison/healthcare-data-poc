@@ -1,0 +1,180 @@
+{
+  "category": "terminology",
+  "description": "Tasks requiring understanding and mapping of clinical terminologies",
+  "tasks": [
+    {
+      "task_id": "HDH-TRM-001",
+      "category": "terminology",
+      "difficulty": "easy",
+      "title": "Identify Code Systems in Use",
+      "description": "Survey the data across EHR, LIS, and Pharmacy to identify which code systems are used for different data types (diagnoses, labs, medications). Report the code system URIs found.",
+      "systems_required": ["ehr", "lis", "pharmacy"],
+      "max_turns": 15,
+      "success_criteria": {
+        "type": "set_match",
+        "target_field": "code_systems"
+      },
+      "grading": {
+        "weight": 0.03
+      },
+      "expected_response": {
+        "code_systems_found": {
+          "diagnoses": ["list of code system URIs"],
+          "lab_tests": ["list of code system URIs"],
+          "medications": ["list of code system URIs"]
+        },
+        "examples": {
+          "diagnosis_example": {"system": "string", "code": "string", "display": "string"},
+          "lab_example": {"system": "string", "code": "string", "display": "string"},
+          "medication_example": {"system": "string", "code": "string", "display": "string"}
+        }
+      },
+      "ground_truth": {
+        "expected_systems": {
+          "diagnoses": ["http://hl7.org/fhir/sid/icd-10-cm", "http://hl7.org/fhir/sid/icd-9-cm"],
+          "lab_tests": ["http://loinc.org"],
+          "medications": ["http://www.nlm.nih.gov/research/umls/rxnorm"]
+        }
+      }
+    },
+    {
+      "task_id": "HDH-TRM-002",
+      "category": "terminology",
+      "difficulty": "medium",
+      "title": "Find Legacy ICD-9 Codes",
+      "description": "Find all conditions in the EHR that use legacy ICD-9 codes (system: http://hl7.org/fhir/sid/icd-9-cm) instead of current ICD-10 codes. These are records migrated from an older system.",
+      "systems_required": ["ehr"],
+      "max_turns": 15,
+      "success_criteria": {
+        "type": "threshold",
+        "target_field": "count_accuracy",
+        "threshold": 0.9
+      },
+      "grading": {
+        "weight": 0.04
+      },
+      "expected_response": {
+        "legacy_icd9_count": "integer",
+        "sample_records": [
+          {
+            "condition_id": "string",
+            "icd9_code": "string",
+            "display": "string",
+            "patient_id": "string"
+          }
+        ],
+        "percentage_of_total": "number"
+      },
+      "ground_truth": {
+        "count_range": [90, 110]
+      }
+    },
+    {
+      "task_id": "HDH-TRM-003",
+      "category": "terminology",
+      "difficulty": "medium",
+      "title": "LOINC Code Lookup",
+      "description": "Given the clinical concept 'Hemoglobin A1c' (HbA1c), find all lab results in the LIS that measure this. The standard LOINC code is 4548-4, but there may be other related codes.",
+      "systems_required": ["lis"],
+      "max_turns": 15,
+      "success_criteria": {
+        "type": "threshold",
+        "target_field": "recall",
+        "threshold": 0.9
+      },
+      "grading": {
+        "weight": 0.03
+      },
+      "expected_response": {
+        "loinc_codes_found": ["list of LOINC codes for HbA1c"],
+        "result_count": "integer",
+        "sample_results": [
+          {
+            "observation_id": "string",
+            "loinc_code": "string",
+            "value": "number",
+            "unit": "string",
+            "patient_id": "string"
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "HDH-TRM-004",
+      "category": "terminology",
+      "difficulty": "hard",
+      "title": "Find All Diabetes-Related Codes",
+      "description": "Find ALL records related to diabetes across all systems, accounting for different terminologies: ICD-10 E11.x (Type 2), ICD-10 E10.x (Type 1), ICD-9 250.xx (legacy), SNOMED codes, and medications like metformin, insulin.",
+      "systems_required": ["ehr", "pharmacy", "lis"],
+      "max_turns": 30,
+      "success_criteria": {
+        "type": "f1_score",
+        "target_field": "diabetes_records",
+        "threshold": 0.8
+      },
+      "grading": {
+        "weight": 0.05
+      },
+      "expected_response": {
+        "diabetes_conditions": {
+          "icd10_type2": {"code_pattern": "E11.x", "count": "integer"},
+          "icd10_type1": {"code_pattern": "E10.x", "count": "integer"},
+          "icd9_legacy": {"code_pattern": "250.xx", "count": "integer"}
+        },
+        "diabetes_medications": {
+          "metformin": {"rxnorm": "860975", "count": "integer"},
+          "insulin_products": {"count": "integer"}
+        },
+        "diabetes_labs": {
+          "hba1c": {"loinc": "4548-4", "count": "integer"},
+          "glucose": {"loinc": "2345-7", "count": "integer"}
+        },
+        "total_diabetes_related_records": "integer",
+        "unique_patients_with_diabetes": "integer"
+      }
+    },
+    {
+      "task_id": "HDH-TRM-005",
+      "category": "terminology",
+      "difficulty": "expert",
+      "title": "Code Mapping Challenge",
+      "description": "Given a list of ICD-9 codes from legacy records, provide the equivalent ICD-10 codes. Then verify by finding if both codes appear for the same patients (indicating mapped data).",
+      "systems_required": ["ehr"],
+      "max_turns": 25,
+      "success_criteria": {
+        "type": "exact_match",
+        "target_field": "code_mappings"
+      },
+      "grading": {
+        "weight": 0.05
+      },
+      "expected_response": {
+        "icd9_to_icd10_mappings": [
+          {
+            "icd9_code": "250.00",
+            "icd9_display": "string",
+            "icd10_equivalent": "E11.9",
+            "icd10_display": "string",
+            "patients_with_both": "integer"
+          },
+          {
+            "icd9_code": "401.9",
+            "icd9_display": "string",
+            "icd10_equivalent": "I10",
+            "icd10_display": "string",
+            "patients_with_both": "integer"
+          }
+        ],
+        "mapping_confidence": "high|medium|low"
+      },
+      "ground_truth": {
+        "expected_mappings": {
+          "250.00": "E11.9",
+          "401.9": "I10",
+          "272.4": "E78.5",
+          "496": "J44.9"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,91 @@
+[
+  {
+    "task_id": "HDH-MPI-001",
+    "response": {
+      "ehr_patient_id": "MRN-100001",
+      "lis_patient_id": "LAB-200001",
+      "matching_confidence": "high",
+      "matching_fields": ["name", "birthDate"]
+    },
+    "turns_used": 4,
+    "time_seconds": 12.5
+  },
+  {
+    "task_id": "HDH-MPI-002",
+    "response": {
+      "patient_ids": {
+        "ehr": "MRN-100042",
+        "lis": "LAB-200042",
+        "ris": "RAD-300042",
+        "pharmacy": "RX-400042",
+        "pas": "ADT-500042",
+        "billing": "ACCT-600042"
+      },
+      "demographics_used": {
+        "name": "Margaret Martin",
+        "birth_date": "1950-12-14"
+      }
+    },
+    "turns_used": 12,
+    "time_seconds": 45.2
+  },
+  {
+    "task_id": "HDH-COH-001",
+    "response": {
+      "cohort_name": "Type 2 Diabetics",
+      "patient_count": 195,
+      "patient_ids": ["MRN-100003", "MRN-100015", "MRN-100027"],
+      "query_used": "GET /fhir/r4/Condition?code=E11"
+    },
+    "turns_used": 3,
+    "time_seconds": 8.1
+  },
+  {
+    "task_id": "HDH-DQ-001",
+    "response": {
+      "orphaned_count": 30,
+      "sample_orphaned_ids": ["orphan-res-abc123", "orphan-res-def456"],
+      "methodology": "Queried Observations and filtered those without basedOn reference"
+    },
+    "turns_used": 5,
+    "time_seconds": 15.3
+  },
+  {
+    "task_id": "HDH-DQ-002",
+    "response": {
+      "abandoned_count": 20,
+      "sample_abandoned_ids": ["abandoned-abc123", "abandoned-def456"],
+      "oldest_order_date": "2023-06-15"
+    },
+    "turns_used": 4,
+    "time_seconds": 11.2
+  },
+  {
+    "task_id": "HDH-PRV-001",
+    "response": {
+      "source_of_truth": {
+        "diagnoses": {"system": "ehr", "resource_type": "Condition"},
+        "medications": {"system": "pharmacy", "resource_type": "MedicationRequest"},
+        "lab_results": {"system": "lis", "resource_type": "Observation"},
+        "lab_orders": {"system": "lis", "resource_type": "ServiceRequest"},
+        "encounters": {"system": "pas", "resource_type": "Encounter"},
+        "demographics": {"system": "ehr", "resource_type": "Patient"}
+      },
+      "reasoning": "Each system is authoritative for its domain"
+    },
+    "turns_used": 8,
+    "time_seconds": 22.4
+  },
+  {
+    "task_id": "HDH-TRM-002",
+    "response": {
+      "legacy_icd9_count": 100,
+      "sample_records": [
+        {"condition_id": "legacy-cond-123", "icd9_code": "250.00", "display": "Diabetes mellitus", "patient_id": "MRN-100050"}
+      ],
+      "percentage_of_total": 3.2
+    },
+    "turns_used": 4,
+    "time_seconds": 10.8
+  }
+]
