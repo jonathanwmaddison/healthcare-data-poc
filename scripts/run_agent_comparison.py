@@ -426,7 +426,7 @@ class DirectAPIAgent:
             self.name = "Claude-Direct"
             self.api_key = os.environ.get("ANTHROPIC_API_KEY")
             self.base_url = "https://api.anthropic.com"
-            self.model = "claude-sonnet-4-20250514"
+            self.model = "claude-opus-4-5-20251101"
         elif provider == "google":
             self.name = "Gemini-Direct"
             self.api_key = os.environ.get("GOOGLE_API_KEY")
