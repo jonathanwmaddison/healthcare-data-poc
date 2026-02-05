@@ -34,7 +34,10 @@ minio_data/
 Thumbs.db
 
 # Benchmark results (user-generated)
-results/
+results/*.json
+results/agent_*.json
+!results/benchmark_runs/
+!results/BENCHMARK_SUMMARY.md
 agent_responses.json
 scores.json
 *.tmp
