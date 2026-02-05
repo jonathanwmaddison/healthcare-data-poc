@@ -211,6 +211,57 @@
         </tbody>
     </table>
 
+    <h2>1.2 Multi-Agent Comparison</h2>
+
+    <p>In addition to the primary Claude Sonnet 4.5 evaluation, comparative testing was conducted with two alternative agent implementations using OpenAI models. The following section presents the results from these alternative systems alongside the primary benchmark findings.</p>
+
+    <h3>Agent Performance Overview</h3>
+
+    <p><strong>Claude Sonnet 4.5 (Anthropic Direct API):</strong> Three complete benchmark runs were executed with consistent performance. Mean overall accuracy: 44.3% (individual runs: 38.3%, 47.5%, 47.1%). Task-level performance: Best Q001 94.4%, Best Q002 100%.</p>
+
+    <p><strong>GPT-5.2 (OpenAI Agents SDK):</strong> Single incomplete run due to API quota limitations. Reported result: 21.3% overall accuracy before termination. The run was halted when the OpenAI API quota was exceeded during task execution, preventing completion of the full benchmark suite.</p>
+
+    <p><strong>GPT-4o (OpenAI Direct API):</strong> Single incomplete run due to API quota limitations. Reported result: 8.2% overall accuracy before termination. Similar to GPT-5.2, this evaluation was constrained by API usage quotas, which prevented comprehensive testing across all benchmark tasks.</p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Agent Implementation</th>
+                <th>Test Runs</th>
+                <th>Overall Mean Accuracy</th>
+                <th>Status</th>
+                <th>Notes</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td class="text-left">Claude Sonnet 4.5 (Anthropic)</td>
+                <td>3</td>
+                <td>44.3%</td>
+                <td>Complete</td>
+                <td class="text-left">Q001: 94.4%, Q002: 100%</td>
+            </tr>
+            <tr>
+                <td class="text-left">GPT-5.2 (OpenAI Agents SDK)</td>
+                <td>1</td>
+                <td>21.3%</td>
+                <td>Incomplete</td>
+                <td class="text-left">Single incomplete run due to API quota exceeded</td>
+            </tr>
+            <tr>
+                <td class="text-left">GPT-4o (OpenAI Direct API)</td>
+                <td>1</td>
+                <td>8.2%</td>
+                <td>Incomplete</td>
+                <td class="text-left">Single incomplete run due to API quota exceeded</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h3>Comparison Analysis</h3>
+
+    <p>The results demonstrate significant performance variation across the three agent implementations tested. Claude Sonnet 4.5 achieved approximately 2.1x higher performance than GPT-5.2 and 5.4x higher performance than GPT-4o. However, the direct comparison is limited by the incomplete evaluation of the OpenAI implementations. Both GPT-5.2 and GPT-4o evaluations were prematurely terminated due to API quota constraints, which prevented comprehensive assessment of their capabilities across the full benchmark suite. These results should be interpreted with caution and considered preliminary pending additional testing with adequate API quota allocation.</p>
+
     <h2>2. Methodology</h2>
 
     <h3>2.1 Benchmark Design</h3>
@@ -390,6 +441,7 @@
         <li>Limited to FHIR R4 API interactions; other healthcare data formats not evaluated</li>
         <li>Synthetic test data; real-world data variability not captured</li>
         <li>Three runs provide limited statistical power for variance analysis</li>
+        <li>OpenAI agent comparisons were limited by API quota constraints during preliminary testing. GPT-5.2 and GPT-4o evaluations comprised single incomplete runs that terminated prematurely due to usage limits. Comprehensive evaluation of these implementations requires additional testing with adequate API quota allocation and would strengthen the comparative analysis.</li>
     </ul>
 
     <h2>5. Conclusion</h2>
