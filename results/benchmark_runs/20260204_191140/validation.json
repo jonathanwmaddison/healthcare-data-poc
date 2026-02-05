@@ -1,0 +1,145 @@
+{
+  "timestamp": "2026-02-04T19:16:52.852607",
+  "agents": {
+    "Claude-Direct": {
+      "tasks": {
+        "Q001": {
+          "task_id": "Q001",
+          "turns": 20,
+          "time_seconds": 58.98,
+          "tokens": 534563,
+          "score": 0.0,
+          "details": {
+            "expected_systems": 6,
+            "matched_systems": 0,
+            "system_matches": {
+              "ehr": {
+                "expected": "MRN-100042",
+                "found": null,
+                "match": false
+              },
+              "lis": {
+                "expected": "LAB-200042",
+                "found": null,
+                "match": false
+              },
+              "ris": {
+                "expected": "RAD-300042",
+                "found": null,
+                "match": false
+              },
+              "pharmacy": {
+                "expected": "RX-400042",
+                "found": null,
+                "match": false
+              },
+              "pas": {
+                "expected": "ADT-500042",
+                "found": null,
+                "match": false
+              },
+              "billing": {
+                "expected": "ACCT-600042",
+                "found": null,
+                "match": false
+              }
+            }
+          },
+          "pass": false
+        },
+        "Q002": {
+          "task_id": "Q002",
+          "turns": 9,
+          "time_seconds": 46.03,
+          "tokens": 138858,
+          "score": 1.0,
+          "details": {
+            "found_count": 134,
+            "expected_range": [
+              92,
+              154
+            ],
+            "in_range": true
+          },
+          "pass": true
+        },
+        "Q003": {
+          "task_id": "Q003",
+          "turns": 5,
+          "time_seconds": 37.75,
+          "tokens": 76436,
+          "score": 0.9014084507042254,
+          "details": {
+            "found_count": 78,
+            "expected": 71,
+            "deviation": 7
+          },
+          "pass": true
+        },
+        "Q004": {
+          "task_id": "Q004",
+          "turns": 6,
+          "time_seconds": 33.61,
+          "tokens": 106792,
+          "score": 0,
+          "details": {
+            "found_groups": 5,
+            "expected_range": [
+              39,
+              59
+            ],
+            "in_range": false
+          },
+          "pass": false
+        },
+        "Q005": {
+          "task_id": "Q005",
+          "turns": 20,
+          "time_seconds": 90.01,
+          "tokens": 776439,
+          "score": 0.0,
+          "details": {
+            "total_patients": 0,
+            "valid_matches": 0,
+            "match_rate": 0,
+            "invalid_matches": []
+          },
+          "pass": false
+        },
+        "Q006": {
+          "task_id": "Q006",
+          "turns": 11,
+          "time_seconds": 45.84,
+          "tokens": 328526,
+          "score": 0.02542372881355931,
+          "details": {
+            "orphaned_results": {
+              "found": 6,
+              "expected_range": [
+                113,
+                123
+              ],
+              "score": 0.05084745762711862
+            },
+            "abandoned_orders": {
+              "found": 40,
+              "expected_range": [
+                15,
+                25
+              ],
+              "score": 0
+            }
+          },
+          "pass": false
+        }
+      },
+      "summary": {
+        "total_score": 1.9268321795177847,
+        "tasks_completed": 6,
+        "total_time_seconds": 312.22,
+        "total_turns": 71,
+        "average_score": 0.32113869658629746
+      }
+    }
+  }
+}

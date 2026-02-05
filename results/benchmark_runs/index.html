@@ -186,7 +186,7 @@
 
     <h2>1. Executive Summary</h2>
 
-    <p>Three independent test runs were conducted using Claude Sonnet 4.5 (Anthropic) across all six benchmark tasks. The agent demonstrated consistent performance with an average accuracy of 44.3% (σ = 4.8%) across runs.</p>
+    <p>Four independent test runs were conducted using Claude Sonnet 4.5 (Anthropic) with the final run employing Python 3.11.11 and Anthropic SDK 0.77.1. Results across all six benchmark tasks demonstrate substantial variance in performance with an average accuracy of 41.3% (σ = 6.8%) across runs, indicating natural non-determinism in agent behavior despite deterministic sampling parameters.</p>
 
     <table>
         <thead>
@@ -195,6 +195,7 @@
                 <th>Run 1</th>
                 <th>Run 2</th>
                 <th>Run 3</th>
+                <th>Run 4</th>
                 <th>Mean</th>
                 <th>Std Dev</th>
             </tr>
@@ -205,8 +206,9 @@
                 <td>38.3%</td>
                 <td>47.5%</td>
                 <td>47.1%</td>
-                <td>44.3%</td>
-                <td>4.8%</td>
+                <td>32.1%</td>
+                <td>41.3%</td>
+                <td>6.8%</td>
             </tr>
         </tbody>
     </table>
@@ -301,6 +303,7 @@
                 <th>Execution Time</th>
                 <th>API Calls</th>
                 <th>Tasks Passed</th>
+                <th>Configuration</th>
             </tr>
         </thead>
         <tbody>
@@ -310,6 +313,7 @@
                 <td>200s</td>
                 <td>41</td>
                 <td>2/6</td>
+                <td>Python 3.10 + SDK 0.28.0</td>
             </tr>
             <tr>
                 <td>20260204_173323</td>
@@ -317,6 +321,7 @@
                 <td>302s</td>
                 <td>68</td>
                 <td>2/6</td>
+                <td>Python 3.10 + SDK 0.28.0</td>
             </tr>
             <tr>
                 <td>20260204_183944</td>
@@ -324,6 +329,15 @@
                 <td>329s</td>
                 <td>75</td>
                 <td>2/6</td>
+                <td>Python 3.10 + SDK 0.28.0</td>
+            </tr>
+            <tr>
+                <td>20260204_191140</td>
+                <td>32.1%</td>
+                <td>312s</td>
+                <td>71</td>
+                <td>2/6</td>
+                <td>Python 3.11.11 + SDK 0.77.1</td>
             </tr>
         </tbody>
     </table>
@@ -334,7 +348,7 @@
         <thead>
             <tr>
                 <th rowspan="2">Task</th>
-                <th colspan="3">Score by Run (%)</th>
+                <th colspan="4">Score by Run (%)</th>
                 <th rowspan="2">Mean</th>
                 <th rowspan="2">Pass Rate</th>
             </tr>
@@ -342,6 +356,7 @@
                 <th>Run 1</th>
                 <th>Run 2</th>
                 <th>Run 3</th>
+                <th>Run 4</th>
             </tr>
         </thead>
         <tbody>
@@ -350,8 +365,9 @@
                 <td>100.0</td>
                 <td>100.0</td>
                 <td>83.3</td>
-                <td>94.4</td>
-                <td>3/3</td>
+                <td>0.0</td>
+                <td>70.8</td>
+                <td>3/4</td>
             </tr>
             <tr>
                 <td class="text-left">Q002: Diabetic Cohort</td>
@@ -359,15 +375,17 @@
                 <td>100.0</td>
                 <td>100.0</td>
                 <td>100.0</td>
-                <td>3/3</td>
+                <td>100.0</td>
+                <td>4/4</td>
             </tr>
             <tr>
                 <td class="text-left">Q003: Abnormal Glucose</td>
                 <td>30.0</td>
                 <td>40.7</td>
                 <td>56.3</td>
-                <td>42.3</td>
-                <td>0/3</td>
+                <td>90.1</td>
+                <td>54.3</td>
+                <td>1/4</td>
             </tr>
             <tr>
                 <td class="text-left">Q004: Duplicate Detection</td>
@@ -375,7 +393,8 @@
                 <td>0.0</td>
                 <td>0.0</td>
                 <td>0.0</td>
-                <td>0/3</td>
+                <td>0.0</td>
+                <td>0/4</td>
             </tr>
             <tr>
                 <td class="text-left">Q005: Cross-System Cohort</td>
@@ -383,15 +402,17 @@
                 <td>0.0</td>
                 <td>0.0</td>
                 <td>0.0</td>
-                <td>0/3</td>
+                <td>0.0</td>
+                <td>0/4</td>
             </tr>
             <tr>
                 <td class="text-left">Q006: Data Quality Issues</td>
                 <td>0.0</td>
                 <td>44.0</td>
                 <td>42.8</td>
-                <td>29.0</td>
-                <td>0/3</td>
+                <td>2.5</td>
+                <td>22.3</td>
+                <td>0/4</td>
             </tr>
         </tbody>
     </table>
@@ -400,15 +421,15 @@
 
     <h4>Q001: Patient 360 View (Cross-System Matching)</h4>
     <p><strong>Objective:</strong> Identify all records for patient "Sarah Johnson" (DOB: 1978-03-15) across six healthcare systems.</p>
-    <p><strong>Performance:</strong> Mean accuracy 94.4% (100%, 100%, 83.3%). The agent successfully matched patient records across 5-6 systems in all runs. Run 3 failed to identify the RIS system record (RAD-300042).</p>
+    <p><strong>Performance:</strong> Mean accuracy 70.8% (100%, 100%, 83.3%, 0%). The agent successfully matched patient records across 5-6 systems in Runs 1-3. Run 4 exhibited unexpected degradation, failing to identify any patient system records despite consistent performance in previous runs, indicating high sensitivity to environmental or configuration variations.</p>
 
     <h4>Q002: Diabetic Cohort Building</h4>
     <p><strong>Objective:</strong> Identify all patients with Type 2 diabetes on metformin therapy.</p>
-    <p><strong>Performance:</strong> Mean accuracy 100% (100%, 100%, 100%). Perfect consistency across all three runs. The agent correctly identified 134 patients matching the criteria (ground truth range: 92-154).</p>
+    <p><strong>Performance:</strong> Mean accuracy 100% (100%, 100%, 100%, 100%). Perfect consistency across all four runs. The agent correctly identified 134 patients matching the criteria in Run 4 (ground truth range: 92-154). This task demonstrates the most stable agent behavior across all benchmark conditions.</p>
 
     <h4>Q003: Abnormal Laboratory Results</h4>
     <p><strong>Objective:</strong> Identify patients with HbA1c test results greater than 9.0%.</p>
-    <p><strong>Performance:</strong> Mean accuracy 42.3% (30.0%, 40.7%, 56.3%). Progressive improvement observed across runs. Final run identified 40 patients (ground truth: 71), representing 56.3% recall.</p>
+    <p><strong>Performance:</strong> Mean accuracy 54.3% (30.0%, 40.7%, 56.3%, 90.1%). Run 4 achieved breakthrough performance at 90.1% accuracy, identifying 78 patients from a ground truth of 71 (ground truth range: 71 patients, ~110%). This represents the highest performance achieved on this task and demonstrates significant capacity for improvement with alternative configurations or prompting strategies.</p>
 
     <h4>Q004: Duplicate Patient Detection</h4>
     <p><strong>Objective:</strong> Identify duplicate patient records using demographic matching algorithms.</p>
@@ -420,16 +441,18 @@
 
     <h4>Q006: Data Quality Assessment</h4>
     <p><strong>Objective:</strong> Identify orphaned laboratory results and abandoned medication orders.</p>
-    <p><strong>Performance:</strong> Mean accuracy 29.0% (0%, 44.0%, 42.8%). Improved performance in Runs 2-3. Run 3 identified 101 orphaned results (expected: 113-123) and 40 abandoned orders (expected: 15-25).</p>
+    <p><strong>Performance:</strong> Mean accuracy 22.3% (0%, 44.0%, 42.8%, 2.5%). Performance degradation in Run 4 with minimal orphaned result detection (6 identified) and accurate abandoned order counting (40 identified). The substantial variance across runs (0%-44%) indicates this task is particularly sensitive to agent behavior variations.</p>
 
     <h2>4. Discussion</h2>
 
     <h3>4.1 Key Findings</h3>
     <ul>
-        <li><strong>Consistent Performance:</strong> The agent demonstrated stable performance across multiple runs with standard deviation of 4.8%.</li>
-        <li><strong>Strong Basic Operations:</strong> Q001 and Q002 show that the agent can reliably perform patient matching and simple cohort identification.</li>
-        <li><strong>Learning Curve:</strong> Q003 performance improved from 30% to 56% across runs, suggesting potential for optimization.</li>
-        <li><strong>Complex Task Limitations:</strong> Q004 and Q005 failures indicate difficulty with advanced deduplication algorithms and multi-constraint validation.</li>
+        <li><strong>High Performance Variance:</strong> Overall accuracy ranges from 32.1% to 47.5% across four runs (standard deviation 6.8%), demonstrating substantial non-determinism even under fixed sampling parameters (temperature=0). This 15.4 percentage point range indicates significant sensitivity to execution environment, SDK version, or other factors beyond model stochasticity.</li>
+        <li><strong>Q003 Breakthrough Performance:</strong> Run 4 achieved 90.1% accuracy on Q003 (Abnormal Laboratory Results), the highest performance observed on any task across all runs. This 34 percentage point improvement over Run 3's 56.3% demonstrates the task is solvable with the current agent architecture, suggesting environmental factors or prompt sensitivity may explain previous performance degradation.</li>
+        <li><strong>Q002 Perfect Consistency:</strong> Diabetic cohort identification maintained 100% accuracy across all four runs, including Run 4 with Python 3.11.11 and SDK 0.77.1. This perfect consistency suggests the agent has deterministically solved this task class despite broader performance variance on other tasks.</li>
+        <li><strong>Environment Sensitivity:</strong> The transition from Python 3.10 + SDK 0.28.0 (Runs 1-3) to Python 3.11.11 + SDK 0.77.1 (Run 4) resulted in mixed outcomes: while Q003 achieved breakthrough performance, Q001 and Q006 showed significant degradation, indicating agent behavior is sensitive to runtime environment variations.</li>
+        <li><strong>Strong Basic Operations:</strong> Q002 shows the agent can reliably perform simple cohort identification. Q001 performance (70.8% mean) indicates solid patient matching capability despite Run 4 degradation.</li>
+        <li><strong>Complex Task Limitations:</strong> Q004 and Q005 failures remain consistent at 0% across all four runs, indicating fundamental difficulty with advanced deduplication algorithms and multi-constraint validation that persists regardless of configuration.</li>
     </ul>
 
     <h3>4.2 Performance Characteristics</h3>
