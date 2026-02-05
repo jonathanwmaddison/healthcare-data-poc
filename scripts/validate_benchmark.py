@@ -83,7 +83,7 @@ def validate_benchmark_files():
     files = [
         "data/benchmark/api_catalog.json",
         "data/benchmark/benchmark_queries.json",
-        "data/benchmark/master_patient_index.json",
+        "data/benchmark/ground_truth/master_patient_index.json",
     ]
 
     all_valid = True

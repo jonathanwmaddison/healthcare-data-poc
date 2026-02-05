@@ -2,7 +2,7 @@
   "benchmark": "HDH-Bench",
   "version": "1.0.0",
   "description": "Base URLs for healthcare systems - agent must discover capabilities",
-  "generated_at": "2026-02-04T09:21:03.500047",
+  "generated_at": "2026-02-04T09:50:03.769093",
   "note": "Use /fhir/r4/metadata endpoint to discover supported resources",
   "systems": {
     "ehr": {
