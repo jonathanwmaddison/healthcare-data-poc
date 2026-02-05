@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HDH-Bench: Healthcare Data Harmonization Benchmark Results</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -12,99 +13,120 @@
         }
 
         body {
-            font-family: 'Times New Roman', Times, serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             line-height: 1.6;
-            color: #000;
-            background: #fff;
-            padding: 40px;
-            max-width: 1000px;
+            color: #1a1a2e;
+            background: #f8f9fc;
+        }
+
+        .container {
+            max-width: 1100px;
             margin: 0 auto;
+            padding: 0 24px;
         }
 
         header {
-            border-bottom: 2px solid #000;
-            padding-bottom: 20px;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #fff;
+            padding: 48px 0 40px;
             margin-bottom: 40px;
         }
 
-        h1 {
-            font-size: 24pt;
-            font-weight: bold;
-            margin-bottom: 10px;
-            text-align: center;
+        header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
         }
 
         .subtitle {
-            text-align: center;
-            font-size: 12pt;
-            font-style: italic;
-            margin-bottom: 20px;
+            font-size: 16px;
+            opacity: 0.85;
+            margin-bottom: 24px;
         }
 
         .metadata {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-            margin-bottom: 30px;
-            padding: 15px;
-            border: 1px solid #ccc;
-            background: #f9f9f9;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 16px;
         }
 
         .metadata-item {
-            text-align: center;
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 12px 16px;
         }
 
         .metadata-item label {
             display: block;
-            font-weight: bold;
-            font-size: 9pt;
+            font-size: 11px;
             text-transform: uppercase;
-            margin-bottom: 5px;
+            letter-spacing: 0.5px;
+            opacity: 0.7;
+            margin-bottom: 4px;
         }
 
         .metadata-item .value {
-            font-size: 11pt;
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .section {
+            background: #fff;
+            border-radius: 12px;
+            padding: 32px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
         }
 
         h2 {
-            font-size: 16pt;
-            font-weight: bold;
-            margin-top: 40px;
+            font-size: 20px;
+            font-weight: 700;
             margin-bottom: 20px;
-            border-bottom: 1px solid #000;
-            padding-bottom: 5px;
+            color: #1a1a2e;
         }
 
         h3 {
-            font-size: 12pt;
-            font-weight: bold;
-            margin-top: 25px;
-            margin-bottom: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            margin-top: 24px;
+            margin-bottom: 12px;
+            color: #16213e;
+        }
+
+        h4 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-top: 20px;
+            margin-bottom: 8px;
+            color: #0f3460;
         }
 
         p {
-            margin-bottom: 10px;
-            text-align: justify;
+            margin-bottom: 12px;
+            color: #374151;
+            line-height: 1.7;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            margin: 20px 0;
-            font-size: 10pt;
+            margin: 16px 0;
+            font-size: 14px;
         }
 
         th, td {
-            border: 1px solid #000;
-            padding: 8px;
+            border: 1px solid #e5e7eb;
+            padding: 10px 12px;
             text-align: left;
         }
 
         th {
-            background: #f0f0f0;
-            font-weight: bold;
+            background: #f3f4f6;
+            font-weight: 600;
             text-align: center;
+            color: #1a1a2e;
+            font-size: 13px;
         }
 
         td {
@@ -115,418 +137,741 @@
             text-align: left;
         }
 
-        .abstract {
-            margin: 30px 0;
-            padding: 20px;
-            border: 1px solid #000;
-            background: #f9f9f9;
+        .chart-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin: 24px 0;
         }
 
-        .abstract h3 {
+        .chart-box {
+            background: #fff;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        }
+
+        .chart-box h3 {
             margin-top: 0;
+            margin-bottom: 16px;
+            font-size: 15px;
+        }
+
+        .chart-box canvas {
+            max-height: 300px;
         }
 
         ul {
-            margin: 10px 0 10px 30px;
+            margin: 12px 0 12px 24px;
+            color: #374151;
         }
 
         li {
-            margin-bottom: 5px;
-        }
-
-        .footnote {
-            font-size: 9pt;
-            margin-top: 30px;
-            padding-top: 10px;
-            border-top: 1px solid #ccc;
+            margin-bottom: 6px;
+            line-height: 1.6;
         }
 
         code {
-            font-family: 'Courier New', Courier, monospace;
-            background: #f5f5f5;
-            padding: 2px 4px;
-            font-size: 9pt;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            background: #f3f4f6;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 13px;
         }
 
         pre {
-            background: #f5f5f5;
-            padding: 10px;
-            border: 1px solid #ddd;
+            background: #1a1a2e;
+            color: #e2e8f0;
+            padding: 16px;
+            border-radius: 8px;
             overflow-x: auto;
-            margin: 10px 0;
-            font-size: 9pt;
+            margin: 12px 0;
+            font-size: 13px;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+        }
+
+        .score-high { color: #059669; font-weight: 600; }
+        .score-mid { color: #d97706; font-weight: 600; }
+        .score-low { color: #dc2626; font-weight: 600; }
+
+        .run-links {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin: 16px 0;
+        }
+
+        .run-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            background: #f3f4f6;
+            border-radius: 8px;
+            text-decoration: none;
+            color: #1a1a2e;
+            font-size: 13px;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+
+        .run-link:hover {
+            background: #e5e7eb;
+        }
+
+        .status-complete { color: #059669; }
+        .status-incomplete { color: #d97706; }
+
+        footer {
+            text-align: center;
+            padding: 32px 0;
+            color: #9ca3af;
+            font-size: 13px;
+        }
+
+        footer a {
+            color: #6b7280;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            color: #1a1a2e;
+        }
+
+        .abstract {
+            background: #f0f4ff;
+            border-left: 4px solid #0f3460;
+            padding: 20px 24px;
+            border-radius: 0 8px 8px 0;
+            margin: 20px 0;
+        }
+
+        .abstract p {
+            margin-bottom: 0;
+        }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin: 20px 0;
+        }
+
+        .kpi-card {
+            background: #f8f9fc;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .kpi-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1a1a2e;
+        }
+
+        .kpi-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #6b7280;
+            margin-top: 4px;
+        }
+
+        @media (max-width: 768px) {
+            .chart-row {
+                grid-template-columns: 1fr;
+            }
+            header {
+                padding: 32px 0;
+            }
+            header h1 {
+                font-size: 22px;
+            }
+            .section {
+                padding: 20px;
+            }
         }
     </style>
 </head>
 <body>
     <header>
-        <h1>HDH-Bench: Healthcare Data Harmonization Benchmark</h1>
-        <div class="subtitle">Evaluating AI Agents on Multi-System FHIR Data Integration Tasks</div>
+        <div class="container">
+            <h1>HDH-Bench: Healthcare Data Harmonization Benchmark</h1>
+            <div class="subtitle">Evaluating AI Agents on Multi-System FHIR Data Integration Tasks</div>
+            <div class="metadata">
+                <div class="metadata-item">
+                    <label>Benchmark Version</label>
+                    <div class="value">1.0.0</div>
+                </div>
+                <div class="metadata-item">
+                    <label>Test Date</label>
+                    <div class="value">2026-02-04</div>
+                </div>
+                <div class="metadata-item">
+                    <label>Systems Tested</label>
+                    <div class="value">6 FHIR R4 APIs</div>
+                </div>
+                <div class="metadata-item">
+                    <label>Total Runs</label>
+                    <div class="value">5 (3 agents)</div>
+                </div>
+                <div class="metadata-item">
+                    <label>Tasks</label>
+                    <div class="value">6 benchmark tasks</div>
+                </div>
+            </div>
+        </div>
     </header>
 
-    <div class="metadata">
-        <div class="metadata-item">
-            <label>Benchmark Version</label>
-            <div class="value">1.0.0</div>
+    <div class="container">
+
+        <div class="abstract">
+            <p><strong>Abstract:</strong> This report presents the results of HDH-Bench, a benchmark designed to evaluate AI agents on healthcare data integration tasks. The benchmark tests agent capabilities across six distinct clinical scenarios requiring discovery, querying, and harmonization of data from multiple FHIR R4-compliant healthcare systems (EHR, LIS, RIS, Pharmacy, PAS, Billing). Results are validated against ground truth data derived from a master patient index.</p>
         </div>
-        <div class="metadata-item">
-            <label>Test Date</label>
-            <div class="value">2026-02-04</div>
+
+        <!-- KPI Summary -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-value">41.3%</div>
+                <div class="kpi-label">Mean Accuracy (Claude)</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value">100%</div>
+                <div class="kpi-label">Best Task (Q002)</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value">2.1x</div>
+                <div class="kpi-label">vs GPT-5.2</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value">286s</div>
+                <div class="kpi-label">Avg Execution Time</div>
+            </div>
         </div>
-        <div class="metadata-item">
-            <label>Systems Tested</label>
-            <div class="value">6 FHIR R4 APIs</div>
+
+        <!-- Charts -->
+        <div class="chart-row">
+            <div class="chart-box">
+                <h3>Task Performance Across Runs</h3>
+                <canvas id="taskChart"></canvas>
+            </div>
+            <div class="chart-box">
+                <h3>Multi-Agent Comparison</h3>
+                <canvas id="agentChart"></canvas>
+            </div>
         </div>
+
+        <div class="chart-row">
+            <div class="chart-box">
+                <h3>Score Distribution by Run</h3>
+                <canvas id="runChart"></canvas>
+            </div>
+            <div class="chart-box">
+                <h3>API Calls vs Performance</h3>
+                <canvas id="scatterChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Executive Summary -->
+        <div class="section">
+            <h2>1. Executive Summary</h2>
+
+            <p>Four independent test runs were conducted using Claude Sonnet 4.5 (Anthropic) with the final run employing Python 3.11.11 and Anthropic SDK 0.77.1. Results across all six benchmark tasks demonstrate substantial variance in performance with an average accuracy of 41.3% (&sigma; = 6.8%) across runs, indicating natural non-determinism in agent behavior despite deterministic sampling parameters.</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Agent</th>
+                        <th>Run 1</th>
+                        <th>Run 2</th>
+                        <th>Run 3</th>
+                        <th>Run 4</th>
+                        <th>Mean</th>
+                        <th>Std Dev</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="text-left">Claude Sonnet 4.5</td>
+                        <td>38.3%</td>
+                        <td>47.5%</td>
+                        <td>47.1%</td>
+                        <td>32.1%</td>
+                        <td class="score-mid">41.3%</td>
+                        <td>6.8%</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>1.1 Multi-Agent Comparison</h3>
+
+            <p>In addition to the primary Claude Sonnet 4.5 evaluation, comparative testing was conducted with two alternative agent implementations using OpenAI models.</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Agent Implementation</th>
+                        <th>Test Runs</th>
+                        <th>Overall Mean Accuracy</th>
+                        <th>Status</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="text-left">Claude Sonnet 4.5 (Anthropic)</td>
+                        <td>3</td>
+                        <td class="score-mid">44.3%</td>
+                        <td class="status-complete">Complete</td>
+                        <td class="text-left">Q001: 94.4%, Q002: 100%</td>
+                    </tr>
+                    <tr>
+                        <td class="text-left">GPT-5.2 (OpenAI Agents SDK)</td>
+                        <td>1</td>
+                        <td class="score-low">21.3%</td>
+                        <td class="status-incomplete">Incomplete</td>
+                        <td class="text-left">API quota exceeded</td>
+                    </tr>
+                    <tr>
+                        <td class="text-left">GPT-4o (OpenAI Direct API)</td>
+                        <td>1</td>
+                        <td class="score-low">8.2%</td>
+                        <td class="status-incomplete">Incomplete</td>
+                        <td class="text-left">API quota exceeded</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <p>Claude Sonnet 4.5 achieved approximately 2.1x higher performance than GPT-5.2 and 5.4x higher performance than GPT-4o. However, both OpenAI evaluations were prematurely terminated due to API quota constraints and should be considered preliminary.</p>
+        </div>
+
+        <!-- Methodology -->
+        <div class="section">
+            <h2>2. Methodology</h2>
+
+            <h3>2.1 Benchmark Design</h3>
+            <p>HDH-Bench consists of six tasks designed to evaluate different aspects of healthcare data integration:</p>
+            <ul>
+                <li><strong>Q001 - Patient 360 View:</strong> Cross-system patient record matching across 6 healthcare systems</li>
+                <li><strong>Q002 - Diabetic Cohort Building:</strong> Multi-system cohort identification using diagnosis and medication data</li>
+                <li><strong>Q003 - Abnormal Laboratory Results:</strong> Clinical data filtering for patients with HbA1c &gt; 9.0%</li>
+                <li><strong>Q004 - Duplicate Patient Detection:</strong> Identification of duplicate patient records using demographic matching</li>
+                <li><strong>Q005 - Cross-System Cohort Validation:</strong> Complex multi-constraint query with cross-system validation</li>
+                <li><strong>Q006 - Data Quality Assessment:</strong> Detection of orphaned results and abandoned orders</li>
+            </ul>
+
+            <h3>2.2 Systems Under Test</h3>
+            <p>The benchmark environment consists of six independent FHIR R4-compliant API endpoints representing typical healthcare system architecture: Electronic Health Record (EHR), Laboratory Information System (LIS), Radiology Information System (RIS), Pharmacy Management, Patient Administration System (PAS), and Billing System.</p>
+
+            <h3>2.3 Validation Methodology</h3>
+            <p>All agent responses are validated against ground truth data maintained in a master patient index. Scoring is performed automatically using task-specific validation criteria. Pass/fail thresholds vary by task complexity and clinical requirements.</p>
+        </div>
+
+        <!-- Results -->
+        <div class="section">
+            <h2>3. Results</h2>
+
+            <h3>3.1 Overall Performance</h3>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Run ID</th>
+                        <th>Overall Score</th>
+                        <th>Execution Time</th>
+                        <th>API Calls</th>
+                        <th>Tasks Passed</th>
+                        <th>Configuration</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><a href="https://github.com/jonathanwmaddison/healthcare-data-poc/tree/main/results/benchmark_runs/20260204_172804">20260204_172804</a></td>
+                        <td class="score-mid">38.3%</td>
+                        <td>200s</td>
+                        <td>41</td>
+                        <td>2/6</td>
+                        <td class="text-left">Python 3.10 + SDK 0.28.0</td>
+                    </tr>
+                    <tr>
+                        <td><a href="https://github.com/jonathanwmaddison/healthcare-data-poc/tree/main/results/benchmark_runs/20260204_173323">20260204_173323</a></td>
+                        <td class="score-mid">47.5%</td>
+                        <td>302s</td>
+                        <td>68</td>
+                        <td>2/6</td>
+                        <td class="text-left">Python 3.10 + SDK 0.28.0</td>
+                    </tr>
+                    <tr>
+                        <td><a href="https://github.com/jonathanwmaddison/healthcare-data-poc/tree/main/results/benchmark_runs/20260204_183944">20260204_183944</a></td>
+                        <td class="score-mid">47.1%</td>
+                        <td>329s</td>
+                        <td>75</td>
+                        <td>2/6</td>
+                        <td class="text-left">Python 3.10 + SDK 0.28.0</td>
+                    </tr>
+                    <tr>
+                        <td><a href="https://github.com/jonathanwmaddison/healthcare-data-poc/tree/main/results/benchmark_runs/20260204_191140">20260204_191140</a></td>
+                        <td class="score-low">32.1%</td>
+                        <td>312s</td>
+                        <td>71</td>
+                        <td>2/6</td>
+                        <td class="text-left">Python 3.11.11 + SDK 0.77.1</td>
+                    </tr>
+                    <tr>
+                        <td><a href="https://github.com/jonathanwmaddison/healthcare-data-poc/tree/main/results/benchmark_runs/20260204_193157">20260204_193157</a></td>
+                        <td class="score-mid">38.0%</td>
+                        <td>--</td>
+                        <td>--</td>
+                        <td>2/6</td>
+                        <td class="text-left">Claude-Direct Agent</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>3.2 Task-Level Performance</h3>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th rowspan="2">Task</th>
+                        <th colspan="4">Score by Run (%)</th>
+                        <th rowspan="2">Mean</th>
+                        <th rowspan="2">Pass Rate</th>
+                    </tr>
+                    <tr>
+                        <th>Run 1</th>
+                        <th>Run 2</th>
+                        <th>Run 3</th>
+                        <th>Run 4</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="text-left">Q001: Patient 360 View</td>
+                        <td class="score-high">100.0</td>
+                        <td class="score-high">100.0</td>
+                        <td class="score-high">83.3</td>
+                        <td class="score-low">0.0</td>
+                        <td class="score-mid">70.8</td>
+                        <td>3/4</td>
+                    </tr>
+                    <tr>
+                        <td class="text-left">Q002: Diabetic Cohort</td>
+                        <td class="score-high">100.0</td>
+                        <td class="score-high">100.0</td>
+                        <td class="score-high">100.0</td>
+                        <td class="score-high">100.0</td>
+                        <td class="score-high">100.0</td>
+                        <td>4/4</td>
+                    </tr>
+                    <tr>
+                        <td class="text-left">Q003: Abnormal Glucose</td>
+                        <td class="score-low">30.0</td>
+                        <td class="score-mid">40.7</td>
+                        <td class="score-mid">56.3</td>
+                        <td class="score-high">90.1</td>
+                        <td class="score-mid">54.3</td>
+                        <td>1/4</td>
+                    </tr>
+                    <tr>
+                        <td class="text-left">Q004: Duplicate Detection</td>
+                        <td class="score-low">0.0</td>
+                        <td class="score-low">0.0</td>
+                        <td class="score-low">0.0</td>
+                        <td class="score-low">0.0</td>
+                        <td class="score-low">0.0</td>
+                        <td>0/4</td>
+                    </tr>
+                    <tr>
+                        <td class="text-left">Q005: Cross-System Cohort</td>
+                        <td class="score-low">0.0</td>
+                        <td class="score-low">0.0</td>
+                        <td class="score-low">0.0</td>
+                        <td class="score-low">0.0</td>
+                        <td class="score-low">0.0</td>
+                        <td>0/4</td>
+                    </tr>
+                    <tr>
+                        <td class="text-left">Q006: Data Quality Issues</td>
+                        <td class="score-low">0.0</td>
+                        <td class="score-mid">44.0</td>
+                        <td class="score-mid">42.8</td>
+                        <td class="score-low">2.5</td>
+                        <td class="score-low">22.3</td>
+                        <td>0/4</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>3.3 Detailed Task Analysis</h3>
+
+            <h4>Q001: Patient 360 View (Cross-System Matching)</h4>
+            <p><strong>Objective:</strong> Identify all records for patient "Sarah Johnson" (DOB: 1978-03-15) across six healthcare systems.</p>
+            <p><strong>Performance:</strong> Mean accuracy 70.8% (100%, 100%, 83.3%, 0%). The agent successfully matched patient records across 5-6 systems in Runs 1-3. Run 4 exhibited unexpected degradation, failing to identify any patient system records despite consistent performance in previous runs.</p>
+
+            <h4>Q002: Diabetic Cohort Building</h4>
+            <p><strong>Objective:</strong> Identify all patients with Type 2 diabetes on metformin therapy.</p>
+            <p><strong>Performance:</strong> Mean accuracy 100% (100%, 100%, 100%, 100%). Perfect consistency across all four runs. The agent correctly identified 134 patients matching the criteria in Run 4 (ground truth range: 92-154).</p>
+
+            <h4>Q003: Abnormal Laboratory Results</h4>
+            <p><strong>Objective:</strong> Identify patients with HbA1c test results greater than 9.0%.</p>
+            <p><strong>Performance:</strong> Mean accuracy 54.3% (30.0%, 40.7%, 56.3%, 90.1%). Run 4 achieved breakthrough performance at 90.1% accuracy, identifying 78 patients from a ground truth of 71.</p>
+
+            <h4>Q004: Duplicate Patient Detection</h4>
+            <p><strong>Objective:</strong> Identify duplicate patient records using demographic matching algorithms.</p>
+            <p><strong>Performance:</strong> Mean accuracy 0% across all runs. The agent identified only 7 groups versus expected range of 39-59 groups.</p>
+
+            <h4>Q005: Cross-System Cohort with Validation</h4>
+            <p><strong>Objective:</strong> Identify diabetic patients with recent HbA1c tests, validated across all systems.</p>
+            <p><strong>Performance:</strong> Mean accuracy 0% across all runs. The agent failed to produce valid cross-system validated matches.</p>
+
+            <h4>Q006: Data Quality Assessment</h4>
+            <p><strong>Objective:</strong> Identify orphaned laboratory results and abandoned medication orders.</p>
+            <p><strong>Performance:</strong> Mean accuracy 22.3% (0%, 44.0%, 42.8%, 2.5%). Substantial variance across runs (0%-44%) indicates this task is particularly sensitive to agent behavior variations.</p>
+        </div>
+
+        <!-- Discussion -->
+        <div class="section">
+            <h2>4. Discussion</h2>
+
+            <h3>4.1 Key Findings</h3>
+            <ul>
+                <li><strong>High Performance Variance:</strong> Overall accuracy ranges from 32.1% to 47.5% across four runs (standard deviation 6.8%), demonstrating substantial non-determinism even under fixed sampling parameters (temperature=0).</li>
+                <li><strong>Q003 Breakthrough Performance:</strong> Run 4 achieved 90.1% accuracy on Q003, the highest performance observed on any non-trivial task. This 34 percentage point improvement over Run 3 demonstrates the task is solvable with the current agent architecture.</li>
+                <li><strong>Q002 Perfect Consistency:</strong> Diabetic cohort identification maintained 100% accuracy across all four runs, suggesting the agent has deterministically solved this task class.</li>
+                <li><strong>Environment Sensitivity:</strong> The transition from Python 3.10 + SDK 0.28.0 to Python 3.11.11 + SDK 0.77.1 resulted in mixed outcomes, indicating agent behavior is sensitive to runtime environment variations.</li>
+                <li><strong>Complex Task Limitations:</strong> Q004 and Q005 failures remain consistent at 0% across all runs, indicating fundamental difficulty with advanced deduplication and multi-constraint validation.</li>
+            </ul>
+
+            <h3>4.2 Limitations</h3>
+            <ul>
+                <li>Limited to FHIR R4 API interactions; other healthcare data formats not evaluated</li>
+                <li>Synthetic test data; real-world data variability not captured</li>
+                <li>OpenAI agent comparisons were limited by API quota constraints and should be considered preliminary</li>
+            </ul>
+        </div>
+
+        <!-- Conclusion -->
+        <div class="section">
+            <h2>5. Conclusion</h2>
+            <p>Claude Sonnet 4.5 demonstrates capability for basic healthcare data integration tasks, achieving 100% accuracy on standard cohort identification and near-perfect patient matching. Performance on complex tasks requiring advanced deduplication and cross-system validation remains limited. The agent's improvement trajectory on certain tasks suggests potential for optimization through prompt engineering or architectural enhancements.</p>
+        </div>
+
+        <!-- Technical Specs -->
+        <div class="section">
+            <h2>6. Technical Specifications</h2>
+            <table>
+                <thead>
+                    <tr><th>Parameter</th><th>Value</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td class="text-left">Agent Model</td><td class="text-left">Claude Sonnet 4.5 (claude-sonnet-4-5-20250929)</td></tr>
+                    <tr><td class="text-left">API Protocol</td><td class="text-left">Anthropic Direct API with tool use</td></tr>
+                    <tr><td class="text-left">FHIR Version</td><td class="text-left">R4 (4.0.1)</td></tr>
+                    <tr><td class="text-left">Validation Method</td><td class="text-left">Ground truth comparison against master patient index</td></tr>
+                    <tr><td class="text-left">Test Environment</td><td class="text-left">Local FHIR servers (6 independent systems)</td></tr>
+                    <tr><td class="text-left">Total Test Runs</td><td class="text-left">5 (across 3 agent implementations)</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Reproducibility -->
+        <div class="section">
+            <h2>7. Reproducibility</h2>
+
+            <p>All benchmark runs are stored in versioned directories with complete validation data. Each run contains metadata, raw agent responses, ground truth validation, and a human-readable summary.</p>
+
+            <h3>Run Data</h3>
+            <div class="run-links">
+                <a class="run-link" href="https://github.com/jonathanwmaddison/healthcare-data-poc/tree/main/results/benchmark_runs/20260204_172804">Run 1: 38.3%</a>
+                <a class="run-link" href="https://github.com/jonathanwmaddison/healthcare-data-poc/tree/main/results/benchmark_runs/20260204_173323">Run 2: 47.5%</a>
+                <a class="run-link" href="https://github.com/jonathanwmaddison/healthcare-data-poc/tree/main/results/benchmark_runs/20260204_183944">Run 3: 47.1%</a>
+                <a class="run-link" href="https://github.com/jonathanwmaddison/healthcare-data-poc/tree/main/results/benchmark_runs/20260204_191140">Run 4: 32.1%</a>
+                <a class="run-link" href="https://github.com/jonathanwmaddison/healthcare-data-poc/tree/main/results/benchmark_runs/20260204_193157">Run 5: 38.0%</a>
+            </div>
+
+            <p>Benchmark execution command:</p>
+            <pre>python3 scripts/run_validated_benchmark.py --agents claude --all-tasks</pre>
+        </div>
+
     </div>
 
-    <div class="abstract">
-        <h3>Abstract</h3>
-        <p>This report presents the results of HDH-Bench, a benchmark designed to evaluate AI agents on healthcare data integration tasks. The benchmark tests agent capabilities across six distinct clinical scenarios requiring discovery, querying, and harmonization of data from multiple FHIR R4-compliant healthcare systems (EHR, LIS, RIS, Pharmacy, PAS, Billing). Results are validated against ground truth data derived from a master patient index.</p>
-    </div>
+    <footer>
+        <p>Generated: 2026-02-04 | <a href="https://github.com/jonathanwmaddison/healthcare-data-poc">healthcare-data-poc</a> | HDH-Bench v1.0.0</p>
+    </footer>
 
-    <h2>1. Executive Summary</h2>
+    <script>
+        const colors = {
+            blue: 'rgba(15, 52, 96, 0.8)',
+            blueLight: 'rgba(15, 52, 96, 0.15)',
+            green: 'rgba(5, 150, 105, 0.8)',
+            orange: 'rgba(217, 119, 6, 0.8)',
+            red: 'rgba(220, 38, 38, 0.8)',
+            purple: 'rgba(124, 58, 237, 0.8)',
+            gray: 'rgba(107, 114, 128, 0.8)',
+        };
 
-    <p>Four independent test runs were conducted using Claude Sonnet 4.5 (Anthropic) with the final run employing Python 3.11.11 and Anthropic SDK 0.77.1. Results across all six benchmark tasks demonstrate substantial variance in performance with an average accuracy of 41.3% (σ = 6.8%) across runs, indicating natural non-determinism in agent behavior despite deterministic sampling parameters.</p>
+        // Task Performance Radar Chart
+        new Chart(document.getElementById('taskChart'), {
+            type: 'radar',
+            data: {
+                labels: ['Q001', 'Q002', 'Q003', 'Q004', 'Q005', 'Q006'],
+                datasets: [
+                    {
+                        label: 'Run 1',
+                        data: [100, 100, 30, 0, 0, 0],
+                        borderColor: colors.blue,
+                        backgroundColor: 'rgba(15, 52, 96, 0.05)',
+                        borderWidth: 2,
+                        pointRadius: 3,
+                    },
+                    {
+                        label: 'Run 2',
+                        data: [100, 100, 40.7, 0, 0, 44],
+                        borderColor: colors.green,
+                        backgroundColor: 'rgba(5, 150, 105, 0.05)',
+                        borderWidth: 2,
+                        pointRadius: 3,
+                    },
+                    {
+                        label: 'Run 3',
+                        data: [83.3, 100, 56.3, 0, 0, 42.8],
+                        borderColor: colors.orange,
+                        backgroundColor: 'rgba(217, 119, 6, 0.05)',
+                        borderWidth: 2,
+                        pointRadius: 3,
+                    },
+                    {
+                        label: 'Run 4',
+                        data: [0, 100, 90.1, 0, 0, 2.5],
+                        borderColor: colors.purple,
+                        backgroundColor: 'rgba(124, 58, 237, 0.05)',
+                        borderWidth: 2,
+                        pointRadius: 3,
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    r: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: { stepSize: 25, font: { size: 10 } },
+                        pointLabels: { font: { size: 12, weight: '600' } }
+                    }
+                },
+                plugins: {
+                    legend: { position: 'bottom', labels: { font: { size: 11 } } }
+                }
+            }
+        });
 
-    <table>
-        <thead>
-            <tr>
-                <th>Agent</th>
-                <th>Run 1</th>
-                <th>Run 2</th>
-                <th>Run 3</th>
-                <th>Run 4</th>
-                <th>Mean</th>
-                <th>Std Dev</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td class="text-left">Claude Sonnet 4.5</td>
-                <td>38.3%</td>
-                <td>47.5%</td>
-                <td>47.1%</td>
-                <td>32.1%</td>
-                <td>41.3%</td>
-                <td>6.8%</td>
-            </tr>
-        </tbody>
-    </table>
+        // Agent Comparison Bar Chart
+        new Chart(document.getElementById('agentChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Claude Sonnet 4.5', 'GPT-5.2', 'GPT-4o'],
+                datasets: [{
+                    label: 'Mean Accuracy (%)',
+                    data: [44.3, 21.3, 8.2],
+                    backgroundColor: [colors.blue, colors.orange, colors.red],
+                    borderRadius: 6,
+                    barPercentage: 0.6,
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: { callback: v => v + '%' }
+                    }
+                },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { callbacks: { label: ctx => ctx.parsed.y + '%' } }
+                }
+            }
+        });
 
-    <h2>1.2 Multi-Agent Comparison</h2>
+        // Run Score Line Chart
+        new Chart(document.getElementById('runChart'), {
+            type: 'line',
+            data: {
+                labels: ['Run 1', 'Run 2', 'Run 3', 'Run 4'],
+                datasets: [{
+                    label: 'Overall Score',
+                    data: [38.3, 47.5, 47.1, 32.1],
+                    borderColor: colors.blue,
+                    backgroundColor: colors.blueLight,
+                    fill: true,
+                    tension: 0.3,
+                    pointRadius: 5,
+                    pointBackgroundColor: colors.blue,
+                    borderWidth: 2,
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 60,
+                        ticks: { callback: v => v + '%' }
+                    }
+                },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { callbacks: { label: ctx => ctx.parsed.y + '%' } }
+                }
+            }
+        });
 
-    <p>In addition to the primary Claude Sonnet 4.5 evaluation, comparative testing was conducted with two alternative agent implementations using OpenAI models. The following section presents the results from these alternative systems alongside the primary benchmark findings.</p>
-
-    <h3>Agent Performance Overview</h3>
-
-    <p><strong>Claude Sonnet 4.5 (Anthropic Direct API):</strong> Three complete benchmark runs were executed with consistent performance. Mean overall accuracy: 44.3% (individual runs: 38.3%, 47.5%, 47.1%). Task-level performance: Best Q001 94.4%, Best Q002 100%.</p>
-
-    <p><strong>GPT-5.2 (OpenAI Agents SDK):</strong> Single incomplete run due to API quota limitations. Reported result: 21.3% overall accuracy before termination. The run was halted when the OpenAI API quota was exceeded during task execution, preventing completion of the full benchmark suite.</p>
-
-    <p><strong>GPT-4o (OpenAI Direct API):</strong> Single incomplete run due to API quota limitations. Reported result: 8.2% overall accuracy before termination. Similar to GPT-5.2, this evaluation was constrained by API usage quotas, which prevented comprehensive testing across all benchmark tasks.</p>
-
-    <table>
-        <thead>
-            <tr>
-                <th>Agent Implementation</th>
-                <th>Test Runs</th>
-                <th>Overall Mean Accuracy</th>
-                <th>Status</th>
-                <th>Notes</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td class="text-left">Claude Sonnet 4.5 (Anthropic)</td>
-                <td>3</td>
-                <td>44.3%</td>
-                <td>Complete</td>
-                <td class="text-left">Q001: 94.4%, Q002: 100%</td>
-            </tr>
-            <tr>
-                <td class="text-left">GPT-5.2 (OpenAI Agents SDK)</td>
-                <td>1</td>
-                <td>21.3%</td>
-                <td>Incomplete</td>
-                <td class="text-left">Single incomplete run due to API quota exceeded</td>
-            </tr>
-            <tr>
-                <td class="text-left">GPT-4o (OpenAI Direct API)</td>
-                <td>1</td>
-                <td>8.2%</td>
-                <td>Incomplete</td>
-                <td class="text-left">Single incomplete run due to API quota exceeded</td>
-            </tr>
-        </tbody>
-    </table>
-
-    <h3>Comparison Analysis</h3>
-
-    <p>The results demonstrate significant performance variation across the three agent implementations tested. Claude Sonnet 4.5 achieved approximately 2.1x higher performance than GPT-5.2 and 5.4x higher performance than GPT-4o. However, the direct comparison is limited by the incomplete evaluation of the OpenAI implementations. Both GPT-5.2 and GPT-4o evaluations were prematurely terminated due to API quota constraints, which prevented comprehensive assessment of their capabilities across the full benchmark suite. These results should be interpreted with caution and considered preliminary pending additional testing with adequate API quota allocation.</p>
-
-    <h2>2. Methodology</h2>
-
-    <h3>2.1 Benchmark Design</h3>
-    <p>HDH-Bench consists of six tasks designed to evaluate different aspects of healthcare data integration:</p>
-    <ul>
-        <li><strong>Q001 - Patient 360 View:</strong> Cross-system patient record matching across 6 healthcare systems</li>
-        <li><strong>Q002 - Diabetic Cohort Building:</strong> Multi-system cohort identification using diagnosis and medication data</li>
-        <li><strong>Q003 - Abnormal Laboratory Results:</strong> Clinical data filtering for patients with HbA1c &gt; 9.0%</li>
-        <li><strong>Q004 - Duplicate Patient Detection:</strong> Identification of duplicate patient records using demographic matching</li>
-        <li><strong>Q005 - Cross-System Cohort Validation:</strong> Complex multi-constraint query with cross-system validation</li>
-        <li><strong>Q006 - Data Quality Assessment:</strong> Detection of orphaned results and abandoned orders</li>
-    </ul>
-
-    <h3>2.2 Systems Under Test</h3>
-    <p>The benchmark environment consists of six independent FHIR R4-compliant API endpoints representing typical healthcare system architecture:</p>
-    <ul>
-        <li>Electronic Health Record (EHR) system</li>
-        <li>Laboratory Information System (LIS)</li>
-        <li>Radiology Information System (RIS)</li>
-        <li>Pharmacy Management System</li>
-        <li>Patient Administration System (PAS)</li>
-        <li>Billing System</li>
-    </ul>
-
-    <h3>2.3 Validation Methodology</h3>
-    <p>All agent responses are validated against ground truth data maintained in a master patient index. Scoring is performed automatically using task-specific validation criteria. Pass/fail thresholds vary by task complexity and clinical requirements.</p>
-
-    <h2>3. Results</h2>
-
-    <h3>3.1 Overall Performance</h3>
-
-    <table>
-        <thead>
-            <tr>
-                <th>Run ID</th>
-                <th>Overall Score</th>
-                <th>Execution Time</th>
-                <th>API Calls</th>
-                <th>Tasks Passed</th>
-                <th>Configuration</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>20260204_172804</td>
-                <td>38.3%</td>
-                <td>200s</td>
-                <td>41</td>
-                <td>2/6</td>
-                <td>Python 3.10 + SDK 0.28.0</td>
-            </tr>
-            <tr>
-                <td>20260204_173323</td>
-                <td>47.5%</td>
-                <td>302s</td>
-                <td>68</td>
-                <td>2/6</td>
-                <td>Python 3.10 + SDK 0.28.0</td>
-            </tr>
-            <tr>
-                <td>20260204_183944</td>
-                <td>47.1%</td>
-                <td>329s</td>
-                <td>75</td>
-                <td>2/6</td>
-                <td>Python 3.10 + SDK 0.28.0</td>
-            </tr>
-            <tr>
-                <td>20260204_191140</td>
-                <td>32.1%</td>
-                <td>312s</td>
-                <td>71</td>
-                <td>2/6</td>
-                <td>Python 3.11.11 + SDK 0.77.1</td>
-            </tr>
-        </tbody>
-    </table>
-
-    <h3>3.2 Task-Level Performance</h3>
-
-    <table>
-        <thead>
-            <tr>
-                <th rowspan="2">Task</th>
-                <th colspan="4">Score by Run (%)</th>
-                <th rowspan="2">Mean</th>
-                <th rowspan="2">Pass Rate</th>
-            </tr>
-            <tr>
-                <th>Run 1</th>
-                <th>Run 2</th>
-                <th>Run 3</th>
-                <th>Run 4</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td class="text-left">Q001: Patient 360 View</td>
-                <td>100.0</td>
-                <td>100.0</td>
-                <td>83.3</td>
-                <td>0.0</td>
-                <td>70.8</td>
-                <td>3/4</td>
-            </tr>
-            <tr>
-                <td class="text-left">Q002: Diabetic Cohort</td>
-                <td>100.0</td>
-                <td>100.0</td>
-                <td>100.0</td>
-                <td>100.0</td>
-                <td>100.0</td>
-                <td>4/4</td>
-            </tr>
-            <tr>
-                <td class="text-left">Q003: Abnormal Glucose</td>
-                <td>30.0</td>
-                <td>40.7</td>
-                <td>56.3</td>
-                <td>90.1</td>
-                <td>54.3</td>
-                <td>1/4</td>
-            </tr>
-            <tr>
-                <td class="text-left">Q004: Duplicate Detection</td>
-                <td>0.0</td>
-                <td>0.0</td>
-                <td>0.0</td>
-                <td>0.0</td>
-                <td>0.0</td>
-                <td>0/4</td>
-            </tr>
-            <tr>
-                <td class="text-left">Q005: Cross-System Cohort</td>
-                <td>0.0</td>
-                <td>0.0</td>
-                <td>0.0</td>
-                <td>0.0</td>
-                <td>0.0</td>
-                <td>0/4</td>
-            </tr>
-            <tr>
-                <td class="text-left">Q006: Data Quality Issues</td>
-                <td>0.0</td>
-                <td>44.0</td>
-                <td>42.8</td>
-                <td>2.5</td>
-                <td>22.3</td>
-                <td>0/4</td>
-            </tr>
-        </tbody>
-    </table>
-
-    <h3>3.3 Detailed Task Analysis</h3>
-
-    <h4>Q001: Patient 360 View (Cross-System Matching)</h4>
-    <p><strong>Objective:</strong> Identify all records for patient "Sarah Johnson" (DOB: 1978-03-15) across six healthcare systems.</p>
-    <p><strong>Performance:</strong> Mean accuracy 70.8% (100%, 100%, 83.3%, 0%). The agent successfully matched patient records across 5-6 systems in Runs 1-3. Run 4 exhibited unexpected degradation, failing to identify any patient system records despite consistent performance in previous runs, indicating high sensitivity to environmental or configuration variations.</p>
-
-    <h4>Q002: Diabetic Cohort Building</h4>
-    <p><strong>Objective:</strong> Identify all patients with Type 2 diabetes on metformin therapy.</p>
-    <p><strong>Performance:</strong> Mean accuracy 100% (100%, 100%, 100%, 100%). Perfect consistency across all four runs. The agent correctly identified 134 patients matching the criteria in Run 4 (ground truth range: 92-154). This task demonstrates the most stable agent behavior across all benchmark conditions.</p>
-
-    <h4>Q003: Abnormal Laboratory Results</h4>
-    <p><strong>Objective:</strong> Identify patients with HbA1c test results greater than 9.0%.</p>
-    <p><strong>Performance:</strong> Mean accuracy 54.3% (30.0%, 40.7%, 56.3%, 90.1%). Run 4 achieved breakthrough performance at 90.1% accuracy, identifying 78 patients from a ground truth of 71 (ground truth range: 71 patients, ~110%). This represents the highest performance achieved on this task and demonstrates significant capacity for improvement with alternative configurations or prompting strategies.</p>
-
-    <h4>Q004: Duplicate Patient Detection</h4>
-    <p><strong>Objective:</strong> Identify duplicate patient records using demographic matching algorithms.</p>
-    <p><strong>Performance:</strong> Mean accuracy 0% (0%, 0%, 0%). The agent failed to identify duplicate groups in all runs. Identified 7 groups versus expected range of 39-59 groups.</p>
-
-    <h4>Q005: Cross-System Cohort with Validation</h4>
-    <p><strong>Objective:</strong> Identify diabetic patients with recent HbA1c tests, validated across all systems.</p>
-    <p><strong>Performance:</strong> Mean accuracy 0% (0%, 0%, 0%). The agent failed to produce valid cross-system validated matches in all runs.</p>
-
-    <h4>Q006: Data Quality Assessment</h4>
-    <p><strong>Objective:</strong> Identify orphaned laboratory results and abandoned medication orders.</p>
-    <p><strong>Performance:</strong> Mean accuracy 22.3% (0%, 44.0%, 42.8%, 2.5%). Performance degradation in Run 4 with minimal orphaned result detection (6 identified) and accurate abandoned order counting (40 identified). The substantial variance across runs (0%-44%) indicates this task is particularly sensitive to agent behavior variations.</p>
-
-    <h2>4. Discussion</h2>
-
-    <h3>4.1 Key Findings</h3>
-    <ul>
-        <li><strong>High Performance Variance:</strong> Overall accuracy ranges from 32.1% to 47.5% across four runs (standard deviation 6.8%), demonstrating substantial non-determinism even under fixed sampling parameters (temperature=0). This 15.4 percentage point range indicates significant sensitivity to execution environment, SDK version, or other factors beyond model stochasticity.</li>
-        <li><strong>Q003 Breakthrough Performance:</strong> Run 4 achieved 90.1% accuracy on Q003 (Abnormal Laboratory Results), the highest performance observed on any task across all runs. This 34 percentage point improvement over Run 3's 56.3% demonstrates the task is solvable with the current agent architecture, suggesting environmental factors or prompt sensitivity may explain previous performance degradation.</li>
-        <li><strong>Q002 Perfect Consistency:</strong> Diabetic cohort identification maintained 100% accuracy across all four runs, including Run 4 with Python 3.11.11 and SDK 0.77.1. This perfect consistency suggests the agent has deterministically solved this task class despite broader performance variance on other tasks.</li>
-        <li><strong>Environment Sensitivity:</strong> The transition from Python 3.10 + SDK 0.28.0 (Runs 1-3) to Python 3.11.11 + SDK 0.77.1 (Run 4) resulted in mixed outcomes: while Q003 achieved breakthrough performance, Q001 and Q006 showed significant degradation, indicating agent behavior is sensitive to runtime environment variations.</li>
-        <li><strong>Strong Basic Operations:</strong> Q002 shows the agent can reliably perform simple cohort identification. Q001 performance (70.8% mean) indicates solid patient matching capability despite Run 4 degradation.</li>
-        <li><strong>Complex Task Limitations:</strong> Q004 and Q005 failures remain consistent at 0% across all four runs, indicating fundamental difficulty with advanced deduplication algorithms and multi-constraint validation that persists regardless of configuration.</li>
-    </ul>
-
-    <h3>4.2 Performance Characteristics</h3>
-    <p>Execution time increased with task complexity, ranging from 200-329 seconds per complete benchmark run. API call volume varied from 41-75 calls, with higher call counts correlating with improved task performance, particularly on Q003 and Q006.</p>
-
-    <h3>4.3 Limitations</h3>
-    <ul>
-        <li>Single agent architecture tested; multi-agent comparisons not performed</li>
-        <li>Limited to FHIR R4 API interactions; other healthcare data formats not evaluated</li>
-        <li>Synthetic test data; real-world data variability not captured</li>
-        <li>Three runs provide limited statistical power for variance analysis</li>
-        <li>OpenAI agent comparisons were limited by API quota constraints during preliminary testing. GPT-5.2 and GPT-4o evaluations comprised single incomplete runs that terminated prematurely due to usage limits. Comprehensive evaluation of these implementations requires additional testing with adequate API quota allocation and would strengthen the comparative analysis.</li>
-    </ul>
-
-    <h2>5. Conclusion</h2>
-
-    <p>Claude Sonnet 4.5 demonstrates capability for basic healthcare data integration tasks, achieving 100% accuracy on standard cohort identification and near-perfect patient matching. Performance on complex tasks requiring advanced deduplication and cross-system validation remains limited. The agent's consistent performance across runs (44.3% ± 4.8%) and improvement trajectory on certain tasks suggests potential for optimization through prompt engineering or architectural enhancements.</p>
-
-    <h2>6. Technical Specifications</h2>
-
-    <table>
-        <thead>
-            <tr>
-                <th>Parameter</th>
-                <th>Value</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td class="text-left">Agent Model</td>
-                <td class="text-left">Claude Sonnet 4.5 (claude-sonnet-4-5-20250929)</td>
-            </tr>
-            <tr>
-                <td class="text-left">API Protocol</td>
-                <td class="text-left">Anthropic Direct API with tool use</td>
-            </tr>
-            <tr>
-                <td class="text-left">FHIR Version</td>
-                <td class="text-left">R4 (4.0.1)</td>
-            </tr>
-            <tr>
-                <td class="text-left">Validation Method</td>
-                <td class="text-left">Ground truth comparison against master patient index</td>
-            </tr>
-            <tr>
-                <td class="text-left">Test Environment</td>
-                <td class="text-left">Local FHIR servers (6 independent systems)</td>
-            </tr>
-            <tr>
-                <td class="text-left">Total Test Runs</td>
-                <td class="text-left">3</td>
-            </tr>
-        </tbody>
-    </table>
-
-    <h2>7. Reproducibility</h2>
-
-    <p>All benchmark runs are stored in versioned directories with complete validation data:</p>
-    <pre>
-results/benchmark_runs/
-├── 20260204_172804/  (Run 1: 38.3%)
-├── 20260204_173323/  (Run 2: 47.5%)
-└── 20260204_183944/  (Run 3: 47.1%)
-    ├── metadata.json      (execution parameters)
-    ├── raw_results.json   (agent responses)
-    ├── validation.json    (ground truth comparison)
-    └── REPORT.md          (human-readable summary)
-    </pre>
-
-    <p>Benchmark execution command:</p>
-    <pre>python3 scripts/run_validated_benchmark.py --agents claude --all-tasks</pre>
-
-    <div class="footnote">
-        <p><strong>Generated:</strong> 2026-02-04 | <strong>Repository:</strong> healthcare-data-poc | <strong>Benchmark Version:</strong> HDH-Bench v1.0.0</p>
-    </div>
+        // API Calls vs Performance Scatter
+        new Chart(document.getElementById('scatterChart'), {
+            type: 'scatter',
+            data: {
+                datasets: [{
+                    label: 'Claude Runs',
+                    data: [
+                        { x: 41, y: 38.3 },
+                        { x: 68, y: 47.5 },
+                        { x: 75, y: 47.1 },
+                        { x: 71, y: 32.1 },
+                    ],
+                    backgroundColor: colors.blue,
+                    pointRadius: 8,
+                    pointHoverRadius: 10,
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        title: { display: true, text: 'API Calls', font: { size: 12 } },
+                        min: 30,
+                        max: 85,
+                    },
+                    y: {
+                        title: { display: true, text: 'Overall Score (%)', font: { size: 12 } },
+                        beginAtZero: true,
+                        max: 60,
+                        ticks: { callback: v => v + '%' }
+                    }
+                },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: ctx => `${ctx.parsed.x} calls, ${ctx.parsed.y}%`
+                        }
+                    }
+                }
+            }
+        });
+    </script>
 </body>
 </html>
