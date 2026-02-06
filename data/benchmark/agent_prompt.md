@@ -8,6 +8,8 @@ You have access to **6 independent healthcare systems**, each exposing FHIR R4 R
 
 **CRITICAL: There is NO shared patient identifier across systems.** The same physical patient has different IDs in each system. To find a patient across systems, you must match on demographics (name, date of birth, etc.).
 
+**Note:** Patient IDs are randomized per seed. Do not assume any pattern between systems (e.g., MRN-100042 does NOT map to LAB-200042).
+
 ## Available Systems
 
 | System | Base URL | Patient ID | Description |
@@ -64,37 +66,38 @@ GET /fhir/r4/metadata                      # Capability statement
 # List patients in EHR
 curl http://localhost:8001/fhir/r4/Patient
 
-# Get specific patient
-curl http://localhost:8001/fhir/r4/Patient/MRN-100001
+# Search patients by name
+curl "http://localhost:8001/fhir/r4/Patient?name=Smith"
 
 # Find diabetic patients (ICD-10 E11.x)
 curl "http://localhost:8001/fhir/r4/Condition?code=E11"
 
 # Get conditions for a patient
-curl "http://localhost:8001/fhir/r4/Condition?subject=Patient/MRN-100001"
+curl "http://localhost:8001/fhir/r4/Condition?subject=Patient/MRN-XXXXXX"
 
 # Search lab results by LOINC code
 curl "http://localhost:8002/fhir/r4/Observation?code=2345-7"
 
 # Get medications for a patient
-curl "http://localhost:8005/fhir/r4/MedicationRequest?subject=Patient/RX-400001"
+curl "http://localhost:8005/fhir/r4/MedicationRequest?subject=Patient/RX-XXXXXX"
 ```
 
-## Benchmark Task Categories
+## Core Tasks (12 tasks)
 
-| Category | Tasks | Easy | Medium | Hard | Expert |
-|----------|-------|------|--------|------|--------|
-| cohort_building | 5 | 1 | 1 | 2 | 1 |
-| cross_system_integration | 5 | 0 | 1 | 2 | 2 |
-| data_provenance | 5 | 1 | 2 | 1 | 1 |
-| data_quality | 6 | 2 | 2 | 2 | 0 |
-| oncology_biomarker | 5 | 0 | 1 | 2 | 2 |
-| patient_matching | 5 | 1 | 1 | 2 | 1 |
-| terminology | 8 | 1 | 2 | 2 | 3 |
-| unstructured_data | 5 | 0 | 2 | 2 | 1 |
-
-
-**Total: 44 tasks**
+| ID | Category | Title | Difficulty | Systems |
+|----|----------|-------|-----------|---------|
+| T01 | Patient Matching | Single-system patient lookup | easy | EHR |
+| T02 | Patient Matching | Cross-system match (EHR + Pharmacy) | medium | EHR, Pharmacy |
+| T03 | Patient Matching | Full 360 match (all 6 systems) | hard | All 6 |
+| T04 | Cohort Building | Diabetic patients (E11.9) | easy | EHR |
+| T05 | Cohort Building | HbA1c lab results (LOINC 4548-4) | easy | LIS |
+| T06 | Cohort Building | Active metformin (RxNorm 860975) | easy | Pharmacy |
+| T07 | Cross-System | Diabetics on metformin | hard | EHR + Pharmacy |
+| T08 | Cross-System | Diabetics + metformin + HbA1c | hard | EHR + Pharmacy + LIS |
+| T09 | Cross-System | Complete record for one patient | medium | All 6 |
+| T10 | Data Quality | Orphaned lab results (no basedOn) | medium | LIS |
+| T11 | Data Quality | Abandoned orders (stale active) | medium | LIS |
+| T12 | Terminology | Legacy ICD-9 conditions | easy | EHR |
 
 ## Response Format
 

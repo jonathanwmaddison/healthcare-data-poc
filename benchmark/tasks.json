@@ -1,0 +1,255 @@
+{
+  "version": "1.0",
+  "description": "HDH-Bench core task set. 12 tasks with exact ground truth.",
+  "tasks": [
+    {
+      "task_id": "T01",
+      "category": "patient_matching",
+      "difficulty": "easy",
+      "title": "Single-system patient lookup",
+      "description": "Look up patient {patient_ehr_id} in the EHR system (localhost:8001). Return the patient's demographics and all condition IDs associated with them.",
+      "systems_required": ["ehr"],
+      "expected_response_schema": {
+        "type": "object",
+        "properties": {
+          "patient_id": {"type": "string"},
+          "demographics": {
+            "type": "object",
+            "properties": {
+              "first_name": {"type": "string"},
+              "last_name": {"type": "string"},
+              "gender": {"type": "string"},
+              "birth_date": {"type": "string"}
+            }
+          },
+          "condition_ids": {
+            "type": "array",
+            "items": {"type": "string"}
+          }
+        }
+      }
+    },
+    {
+      "task_id": "T02",
+      "category": "patient_matching",
+      "difficulty": "medium",
+      "title": "Cross-system match (EHR + Pharmacy)",
+      "description": "Find patient {patient_ehr_id} in the EHR system (localhost:8001), then find the SAME patient in the Pharmacy system (localhost:8005) by matching demographics. Return both system IDs, the patient's demographics, their condition IDs from EHR, and medication IDs from Pharmacy.",
+      "systems_required": ["ehr", "pharmacy"],
+      "expected_response_schema": {
+        "type": "object",
+        "properties": {
+          "ehr_id": {"type": "string"},
+          "pharmacy_id": {"type": "string"},
+          "demographics": {"type": "object"},
+          "condition_ids": {"type": "array", "items": {"type": "string"}},
+          "medication_ids": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    },
+    {
+      "task_id": "T03",
+      "category": "patient_matching",
+      "difficulty": "hard",
+      "title": "Full 360 match (all 6 systems)",
+      "description": "Find patient {patient_ehr_id} in the EHR system (localhost:8001), then find the SAME patient in ALL other systems (LIS, RIS, Pharmacy, PAS, Billing) by matching demographics. Return the patient ID in each system and the patient's demographics.",
+      "systems_required": ["ehr", "lis", "ris", "pharmacy", "pas", "billing"],
+      "expected_response_schema": {
+        "type": "object",
+        "properties": {
+          "system_ids": {
+            "type": "object",
+            "properties": {
+              "ehr": {"type": "string"},
+              "lis": {"type": "string"},
+              "ris": {"type": "string"},
+              "pharmacy": {"type": "string"},
+              "pas": {"type": "string"},
+              "billing": {"type": "string"}
+            }
+          },
+          "demographics": {"type": "object"}
+        }
+      }
+    },
+    {
+      "task_id": "T04",
+      "category": "cohort_building",
+      "difficulty": "easy",
+      "title": "Diabetic patients (E11.9)",
+      "description": "Query the EHR system (localhost:8001) for all patients with an active Condition coded as ICD-10 E11.9 (Type 2 diabetes). Return the list of EHR patient IDs.",
+      "systems_required": ["ehr"],
+      "expected_response_schema": {
+        "type": "object",
+        "properties": {
+          "patient_ids": {
+            "type": "array",
+            "items": {"type": "string"},
+            "description": "EHR patient IDs (MRN-XXXXXX format)"
+          },
+          "count": {"type": "integer"}
+        }
+      }
+    },
+    {
+      "task_id": "T05",
+      "category": "cohort_building",
+      "difficulty": "easy",
+      "title": "HbA1c lab results (LOINC 4548-4)",
+      "description": "Query the LIS system (localhost:8002) for all patients who have at least one Observation with LOINC code 4548-4 (Hemoglobin A1c). Return the list of LIS patient IDs.",
+      "systems_required": ["lis"],
+      "expected_response_schema": {
+        "type": "object",
+        "properties": {
+          "patient_ids": {
+            "type": "array",
+            "items": {"type": "string"},
+            "description": "LIS patient IDs (LAB-XXXXXX format)"
+          },
+          "count": {"type": "integer"}
+        }
+      }
+    },
+    {
+      "task_id": "T06",
+      "category": "cohort_building",
+      "difficulty": "easy",
+      "title": "Active metformin prescriptions (RxNorm 860975)",
+      "description": "Query the Pharmacy system (localhost:8005) for all patients who have an active MedicationRequest for RxNorm code 860975 (Metformin 500 MG). Return the list of Pharmacy patient IDs.",
+      "systems_required": ["pharmacy"],
+      "expected_response_schema": {
+        "type": "object",
+        "properties": {
+          "patient_ids": {
+            "type": "array",
+            "items": {"type": "string"},
+            "description": "Pharmacy patient IDs (RX-XXXXXX format)"
+          },
+          "count": {"type": "integer"}
+        }
+      }
+    },
+    {
+      "task_id": "T07",
+      "category": "cross_system",
+      "difficulty": "hard",
+      "title": "Diabetics on metformin",
+      "description": "Find all patients who have BOTH: (1) an active E11.9 condition in EHR (localhost:8001) AND (2) an active metformin prescription (RxNorm 860975) in Pharmacy (localhost:8005). You must match patients across systems using demographics. Return pairs of (EHR ID, Pharmacy ID).",
+      "systems_required": ["ehr", "pharmacy"],
+      "expected_response_schema": {
+        "type": "object",
+        "properties": {
+          "patients": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "ehr_id": {"type": "string"},
+                "pharmacy_id": {"type": "string"}
+              }
+            }
+          },
+          "count": {"type": "integer"}
+        }
+      }
+    },
+    {
+      "task_id": "T08",
+      "category": "cross_system",
+      "difficulty": "hard",
+      "title": "Diabetics with metformin and HbA1c",
+      "description": "Find all patients who have ALL THREE: (1) an active E11.9 condition in EHR (localhost:8001), (2) an active metformin prescription (RxNorm 860975) in Pharmacy (localhost:8005), AND (3) at least one HbA1c observation (LOINC 4548-4) in LIS (localhost:8002). Match across systems using demographics. Return triples of (EHR ID, Pharmacy ID, LIS ID).",
+      "systems_required": ["ehr", "pharmacy", "lis"],
+      "expected_response_schema": {
+        "type": "object",
+        "properties": {
+          "patients": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "ehr_id": {"type": "string"},
+                "pharmacy_id": {"type": "string"},
+                "lis_id": {"type": "string"}
+              }
+            }
+          },
+          "count": {"type": "integer"}
+        }
+      }
+    },
+    {
+      "task_id": "T09",
+      "category": "cross_system",
+      "difficulty": "medium",
+      "title": "Complete record for one patient",
+      "description": "Find patient {patient_ehr_id} in EHR (localhost:8001), then locate the same patient across ALL systems. Compile a complete clinical record including: all system IDs, demographics, condition IDs, medication IDs, lab result IDs, and encounter IDs.",
+      "systems_required": ["ehr", "lis", "ris", "pharmacy", "pas", "billing"],
+      "expected_response_schema": {
+        "type": "object",
+        "properties": {
+          "system_ids": {"type": "object"},
+          "demographics": {"type": "object"},
+          "condition_ids": {"type": "array", "items": {"type": "string"}},
+          "medication_ids": {"type": "array", "items": {"type": "string"}},
+          "lab_result_ids": {"type": "array", "items": {"type": "string"}},
+          "encounter_ids": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    },
+    {
+      "task_id": "T10",
+      "category": "data_quality",
+      "difficulty": "medium",
+      "title": "Orphaned lab results",
+      "description": "Find all Observation resources in the LIS system (localhost:8002) that do NOT have a 'basedOn' reference to a ServiceRequest. These are orphaned lab results with no corresponding order. Return the list of Observation IDs.",
+      "systems_required": ["lis"],
+      "expected_response_schema": {
+        "type": "object",
+        "properties": {
+          "observation_ids": {
+            "type": "array",
+            "items": {"type": "string"}
+          },
+          "count": {"type": "integer"}
+        }
+      }
+    },
+    {
+      "task_id": "T11",
+      "category": "data_quality",
+      "difficulty": "medium",
+      "title": "Abandoned orders",
+      "description": "Find all ServiceRequest resources in the LIS system (localhost:8002) that have status 'active' but were authored more than 90 days ago. These are likely abandoned orders. Return the list of ServiceRequest IDs.",
+      "systems_required": ["lis"],
+      "expected_response_schema": {
+        "type": "object",
+        "properties": {
+          "service_request_ids": {
+            "type": "array",
+            "items": {"type": "string"}
+          },
+          "count": {"type": "integer"}
+        }
+      }
+    },
+    {
+      "task_id": "T12",
+      "category": "terminology",
+      "difficulty": "easy",
+      "title": "Legacy ICD-9 conditions",
+      "description": "Find all Condition resources in the EHR system (localhost:8001) that use the ICD-9 coding system (http://hl7.org/fhir/sid/icd-9-cm) instead of ICD-10. Return the list of Condition IDs.",
+      "systems_required": ["ehr"],
+      "expected_response_schema": {
+        "type": "object",
+        "properties": {
+          "condition_ids": {
+            "type": "array",
+            "items": {"type": "string"}
+          },
+          "count": {"type": "integer"}
+        }
+      }
+    }
+  ]
+}

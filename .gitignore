@@ -33,11 +33,5 @@ minio_data/
 .DS_Store
 Thumbs.db
 
-# Benchmark results (user-generated)
-results/*.json
-results/agent_*.json
-!results/benchmark_runs/
-!results/BENCHMARK_SUMMARY.md
-agent_responses.json
-scores.json
-*.tmp
+# Benchmark results (generated per-run)
+results/
