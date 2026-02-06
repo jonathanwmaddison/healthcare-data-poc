@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HDH-Bench Run: Claude Code (Opus 4.6) - 2026-02-05</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6; color: #1a1a2e; background: #f8f9fc;
+        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+        header {
+            background: linear-gradient(135deg, #7f1d1d 0%, #991b1b 50%, #b91c1c 100%);
+            color: #fff; padding: 48px 0 40px; margin-bottom: 40px;
+        }
+        header h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.5px; }
+        .subtitle { font-size: 16px; opacity: 0.85; margin-bottom: 24px; }
+        .metadata {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px;
+        }
+        .metadata-item {
+            background: rgba(255,255,255,0.1); border-radius: 8px; padding: 12px 16px;
+        }
+        .metadata-item label {
+            display: block; font-size: 11px; text-transform: uppercase;
+            letter-spacing: 0.5px; opacity: 0.7; margin-bottom: 4px;
+        }
+        .metadata-item .value { font-size: 15px; font-weight: 600; }
+        .section {
+            background: #fff; border-radius: 12px; padding: 32px;
+            margin-bottom: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        }
+        h2 { font-size: 20px; font-weight: 700; margin-bottom: 20px; color: #1a1a2e; }
+        h3 { font-size: 16px; font-weight: 600; margin-top: 24px; margin-bottom: 12px; color: #16213e; }
+        h4 { font-size: 14px; font-weight: 600; margin-top: 20px; margin-bottom: 8px; color: #0f3460; }
+        p { margin-bottom: 12px; color: #374151; line-height: 1.7; }
+        table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; }
+        th, td { border: 1px solid #e5e7eb; padding: 8px 10px; text-align: left; }
+        th { background: #f3f4f6; font-weight: 600; text-align: center; color: #1a1a2e; font-size: 12px; }
+        td { text-align: center; }
+        td.text-left { text-align: left; }
+        .score-high { color: #059669; font-weight: 600; }
+        .score-mid { color: #d97706; font-weight: 600; }
+        .score-low { color: #dc2626; font-weight: 600; }
+        .pass { background: #ecfdf5; color: #059669; font-weight: 600; padding: 2px 8px; border-radius: 4px; font-size: 11px; }
+        .fail { background: #fef2f2; color: #dc2626; font-weight: 600; padding: 2px 8px; border-radius: 4px; font-size: 11px; }
+        .chart-row { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin: 24px 0; }
+        .chart-box {
+            background: #fff; border-radius: 12px; padding: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        }
+        .chart-box h3 { margin-top: 0; margin-bottom: 16px; font-size: 15px; }
+        .chart-box canvas { max-height: 300px; }
+        .kpi-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 16px; margin: 20px 0;
+        }
+        .kpi-card { background: #f8f9fc; border-radius: 8px; padding: 20px; text-align: center; }
+        .kpi-value { font-size: 32px; font-weight: 700; color: #1a1a2e; }
+        .kpi-sub { font-size: 13px; color: #6b7280; margin-top: 2px; }
+        .kpi-label {
+            font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;
+            color: #6b7280; margin-top: 4px;
+        }
+        .back-link {
+            display: inline-flex; align-items: center; gap: 6px;
+            color: rgba(255,255,255,0.8); text-decoration: none; font-size: 14px;
+            margin-bottom: 12px;
+        }
+        .back-link:hover { color: #fff; }
+        .task-detail {
+            background: #f8f9fc; border-radius: 8px; padding: 20px;
+            margin: 16px 0; border-left: 4px solid #e5e7eb;
+        }
+        .task-detail.pass-detail { border-left-color: #059669; }
+        .task-detail.fail-detail { border-left-color: #dc2626; }
+        .detail-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px;
+        }
+        .detail-item label { font-size: 11px; text-transform: uppercase; color: #6b7280; display: block; }
+        .detail-item .val { font-size: 15px; font-weight: 600; }
+        code {
+            font-family: 'SF Mono', 'Fira Code', monospace; background: #f3f4f6;
+            padding: 2px 6px; border-radius: 4px; font-size: 13px;
+        }
+        ul { margin: 12px 0 12px 24px; color: #374151; }
+        li { margin-bottom: 6px; line-height: 1.6; }
+        footer { text-align: center; padding: 32px 0; color: #9ca3af; font-size: 13px; }
+        footer a { color: #6b7280; text-decoration: none; }
+        footer a:hover { color: #1a1a2e; }
+        .tag {
+            display: inline-block; padding: 2px 10px; border-radius: 12px;
+            font-size: 11px; font-weight: 600;
+        }
+        .tag-new { background: #fef3c7; color: #92400e; }
+        .tag-model { background: #ede9fe; color: #5b21b6; }
+        .tag-easy { background: #ecfdf5; color: #065f46; }
+        .tag-medium { background: #eff6ff; color: #1e40af; }
+        .tag-hard { background: #fef3c7; color: #92400e; }
+        .tag-expert { background: #fef2f2; color: #991b1b; }
+        .cat-header {
+            background: #f3f4f6; padding: 8px 12px; font-weight: 700; font-size: 13px;
+            text-transform: uppercase; letter-spacing: 0.5px; color: #374151;
+        }
+        .cat-header td { text-align: left; border-bottom: 2px solid #d1d5db; }
+        .progress-bar {
+            height: 6px; background: #e5e7eb; border-radius: 3px; overflow: hidden;
+            display: inline-block; width: 60px; vertical-align: middle;
+        }
+        .progress-fill { height: 100%; border-radius: 3px; }
+        .note-text { font-size: 12px; color: #6b7280; max-width: 280px; line-height: 1.4; }
+        @media (max-width: 768px) {
+            .chart-row { grid-template-columns: 1fr; }
+            .detail-grid { grid-template-columns: 1fr; }
+            header { padding: 32px 0; }
+            header h1 { font-size: 22px; }
+            .section { padding: 20px; }
+            .note-text { max-width: 160px; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <a class="back-link" href="../index.html">&larr; All Benchmark Runs</a>
+            <h1>Run 6: Claude Code (Opus 4.6)</h1>
+            <div class="subtitle">Full 44-Task HDH-Bench Validated Evaluation &mdash; 2026-02-05</div>
+            <div class="metadata">
+                <div class="metadata-item">
+                    <label>Model</label>
+                    <div class="value">claude-opus-4-6</div>
+                </div>
+                <div class="metadata-item">
+                    <label>Agent Type</label>
+                    <div class="value">Claude Code (CLI)</div>
+                </div>
+                <div class="metadata-item">
+                    <label>Full Benchmark</label>
+                    <div class="value">72.5% avg</div>
+                </div>
+                <div class="metadata-item">
+                    <label>Tasks Passed</label>
+                    <div class="value">29 / 44</div>
+                </div>
+                <div class="metadata-item">
+                    <label>Core Q-Tasks</label>
+                    <div class="value">42.3% (2/6)</div>
+                </div>
+                <div class="metadata-item">
+                    <label>Scoring</label>
+                    <div class="value">Hybrid (Auto + Manual)</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+
+        <!-- KPI Summary -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-value">72.5%</div>
+                <div class="kpi-sub">All 44 tasks</div>
+                <div class="kpi-label">Full Benchmark Score</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value">29/44</div>
+                <div class="kpi-sub">65.9% pass rate</div>
+                <div class="kpi-label">Tasks Passed</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value">42.3%</div>
+                <div class="kpi-sub">Core Q001-Q006</div>
+                <div class="kpi-label">Q-Task Score</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value">44/44</div>
+                <div class="kpi-sub">100% completion</div>
+                <div class="kpi-label">Tasks Completed</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value">67.1%</div>
+                <div class="kpi-sub">Sub-goals achieved</div>
+                <div class="kpi-label">Progress Rate</div>
+            </div>
+        </div>
+
+        <!-- Charts Row 1: Category + Difficulty -->
+        <div class="chart-row">
+            <div class="chart-box">
+                <h3>Score by Category</h3>
+                <canvas id="categoryChart"></canvas>
+            </div>
+            <div class="chart-box">
+                <h3>Score by Difficulty</h3>
+                <canvas id="difficultyChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Charts Row 2: Q-Tasks + Category Radar -->
+        <div class="chart-row">
+            <div class="chart-box">
+                <h3>Core Q-Task Scores</h3>
+                <canvas id="taskScoreChart"></canvas>
+            </div>
+            <div class="chart-box">
+                <h3>Category Radar</h3>
+                <canvas id="radarChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Category Summary -->
+        <div class="section">
+            <h2>Performance by Category</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Tasks</th>
+                        <th>Passed</th>
+                        <th>Pass Rate</th>
+                        <th>Avg Score</th>
+                        <th>Assessment</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="text-left">Terminology (TRM)</td>
+                        <td>8</td>
+                        <td class="score-high">7</td>
+                        <td class="score-high">87.5%</td>
+                        <td class="score-high">91.3%</td>
+                        <td class="text-left">Strongest category. Perfect ICD-9 identification, code mapping, and system survey.</td>
+                    </tr>
+                    <tr>
+                        <td class="text-left">Data Provenance (PRV)</td>
+                        <td>5</td>
+                        <td class="score-high">5</td>
+                        <td class="score-high">100.0%</td>
+                        <td class="score-high">90.0%</td>
+                        <td class="text-left">All tasks passed. Excellent provenance tracing and timeline construction.</td>
+                    </tr>
+                    <tr>
+                        <td class="text-left">Cross-System Integration (CSI)</td>
+                        <td>5</td>
+                        <td class="score-high">4</td>
+                        <td class="score-high">80.0%</td>
+                        <td class="score-mid">77.0%</td>
+                        <td class="text-left">Strong cross-system matching. Billing reconciliation limited by empty billing system.</td>
+                    </tr>
+                    <tr>
+                        <td class="text-left">Cohort Building (COH)</td>
+                        <td>5</td>
+                        <td class="score-high">4</td>
+                        <td class="score-high">80.0%</td>
+                        <td class="score-mid">74.0%</td>
+                        <td class="text-left">Good cohort identification. 3-system matching achieved but output format incomplete.</td>
+                    </tr>
+                    <tr>
+                        <td class="text-left">Patient Matching (MPI)</td>
+                        <td>5</td>
+                        <td class="score-mid">3</td>
+                        <td class="score-mid">60.0%</td>
+                        <td class="score-mid">73.7%</td>
+                        <td class="text-left">Perfect exact matching. Duplicate detection found fewer than expected.</td>
+                    </tr>
+                    <tr>
+                        <td class="text-left">Oncology Biomarker (ONC)</td>
+                        <td>5</td>
+                        <td class="score-low">1</td>
+                        <td class="score-low">20.0%</td>
+                        <td class="score-mid">63.0%</td>
+                        <td class="text-left">Good data extraction but strict scoring thresholds not met for most tasks.</td>
+                    </tr>
+                    <tr>
+                        <td class="text-left">Unstructured Data (UNS)</td>
+                        <td>5</td>
+                        <td class="score-low">2</td>
+                        <td class="score-low">40.0%</td>
+                        <td class="score-mid">53.0%</td>
+                        <td class="text-left">Lab comment extraction strong. Limited by generic medication instructions and absent allergies.</td>
+                    </tr>
+                    <tr>
+                        <td class="text-left">Data Quality (DQ)</td>
+                        <td>6</td>
+                        <td class="score-mid">3</td>
+                        <td class="score-mid">50.0%</td>
+                        <td class="score-mid">51.3%</td>
+                        <td class="text-left">Mixed results. Referential integrity perfect, but orphaned/abandoned counts exceeded expectations.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Core Q-Task Summary (existing) -->
+        <div class="section">
+            <h2>Core Benchmark: Q001-Q006</h2>
+            <p>The 6 core Q-tasks are scored with hand-validated ground truth and stricter criteria than the extended tasks.</p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Task</th>
+                        <th>Description</th>
+                        <th>Score</th>
+                        <th>Status</th>
+                        <th>Key Finding</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Q001</td>
+                        <td class="text-left">Patient 360 View</td>
+                        <td class="score-high">100.0%</td>
+                        <td><span class="pass">PASS</span></td>
+                        <td class="text-left">All 6 systems matched</td>
+                    </tr>
+                    <tr>
+                        <td>Q002</td>
+                        <td class="text-left">Diabetic Cohort</td>
+                        <td class="score-high">100.0%</td>
+                        <td><span class="pass">PASS</span></td>
+                        <td class="text-left">134 patients (range: 92-154)</td>
+                    </tr>
+                    <tr>
+                        <td>Q003</td>
+                        <td class="text-left">Abnormal Glucose</td>
+                        <td class="score-low">0.0%</td>
+                        <td><span class="fail">FAIL</span></td>
+                        <td class="text-left">Found 143 (expected 71) &mdash; broader criteria</td>
+                    </tr>
+                    <tr>
+                        <td>Q004</td>
+                        <td class="text-left">Duplicate Detection</td>
+                        <td class="score-low">16.7%</td>
+                        <td><span class="fail">FAIL</span></td>
+                        <td class="text-left">18 groups found (expected 39-59)</td>
+                    </tr>
+                    <tr>
+                        <td>Q005</td>
+                        <td class="text-left">Cross-System Cohort</td>
+                        <td class="score-low">0.0%</td>
+                        <td><span class="fail">FAIL</span></td>
+                        <td class="text-left">Missing cross-system IDs</td>
+                    </tr>
+                    <tr>
+                        <td>Q006</td>
+                        <td class="text-left">Data Quality</td>
+                        <td class="score-mid">37.3%</td>
+                        <td><span class="fail">FAIL</span></td>
+                        <td class="text-left">Orphaned: 74.6%, Abandoned: 0%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Full 44-Task Validation -->
+        <div class="section">
+            <h2>Complete Task Validation (44 Tasks)</h2>
+            <p>Every task scored using hybrid evaluation: automated HDH scorer combined with manual response analysis where the automated scorer underestimates performance due to response format differences.</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 110px;">Task ID</th>
+                        <th>Description</th>
+                        <th style="width: 55px;">Diff.</th>
+                        <th style="width: 60px;">Score</th>
+                        <th style="width: 50px;">Status</th>
+                        <th>Note</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Patient Matching -->
+                    <tr class="cat-header"><td colspan="6">Patient Matching (MPI) &mdash; 3/5 passed, avg 73.7%</td></tr>
+                    <tr>
+                        <td>HDH-MPI-001</td>
+                        <td class="text-left">Find patient in two systems (EHR &rarr; LIS)</td>
+                        <td><span class="tag tag-easy">Easy</span></td>
+                        <td class="score-high">100%</td>
+                        <td><span class="pass">PASS</span></td>
+                        <td class="text-left note-text">MRN-100001 matched to LAB-200001</td>
+                    </tr>
+                    <tr>
+                        <td>HDH-MPI-002</td>
+                        <td class="text-left">Patient 360 view across 6 systems</td>
+                        <td><span class="tag tag-medium">Med</span></td>
+                        <td class="score-high">100%</td>
+                        <td><span class="pass">PASS</span></td>
+                        <td class="text-left note-text">6/6 system IDs matched for MRN-100042</td>
+                    </tr>
+                    <tr>
+                        <td>HDH-MPI-003</td>
+                        <td class="text-left">Detect duplicate patients in EHR</td>
+                        <td><span class="tag tag-hard">Hard</span></td>
+                        <td class="score-mid">48.4%</td>
+                        <td><span class="fail">FAIL</span></td>
+                        <td class="text-left note-text">Found 18 groups (expected 39-59). All high confidence.</td>
+                    </tr>
+                    <tr>
+                        <td>HDH-MPI-004</td>
+                        <td class="text-left">Cross-system duplicate detection</td>
+                        <td><span class="tag tag-hard">Hard</span></td>
+                        <td class="score-mid">60.0%</td>
+                        <td><span class="pass">PASS</span></td>
+                        <td class="text-left note-text">33 cross-system duplicate sets, 22 patients affected</td>
+                    </tr>
+                    <tr>
+                        <td>HDH-MPI-005</td>
+                        <td class="text-left">Probabilistic/fuzzy matching for J. Smith</td>
+                        <td><span class="tag tag-expert">Expert</span></td>
+                        <td class="score-mid">60.0%</td>
+                        <td><span class="fail">FAIL</span></td>
+                        <td class="text-left note-text">6 candidates found, top confidence 0.35 (threshold 0.8)</td>
+                    </tr>
+
+                    <!-- Cohort Building -->
+                    <tr class="cat-header"><td colspan="6">Cohort Building (COH) &mdash; 4/5 passed, avg 74.0%</td></tr>
+                    <tr>
+                        <td>HDH-COH-001</td>
+                        <td class="text-left">Type 2 Diabetes cohort (ICD-10 E11.x)</td>
+                        <td><span class="tag tag-easy">Easy</span></td>
+                        <td class="score-high">100%</td>
+                        <td><span class="pass">PASS</span></td>
+                        <td class="text-left note-text">134 patients in range [114-154]</td>
+                    </tr>
+                    <tr>
+                        <td>HDH-COH-002</td>
+                        <td class="text-left">Abnormal fasting glucose cohort</td>
+                        <td><span class="tag tag-medium">Med</span></td>
+                        <td class="score-high">100%</td>
+                        <td><span class="pass">PASS</span></td>
+                        <td class="text-left note-text">143 patients in range [100-180]</td>
+                    </tr>
+                    <tr>
+                        <td>HDH-COH-003</td>
+                        <td class="text-left">Cross-system: Diabetics on Metformin</td>
+                        <td><span class="tag tag-hard">Hard</span></td>
+                        <td class="score-mid">70.0%</td>
+                        <td><span class="pass">PASS</span></td>
+                        <td class="text-left note-text">28 patients matched across EHR + Pharmacy</td>
+                    </tr>
+                    <tr>
+                        <td>HDH-COH-004</td>
+                        <td class="text-left">Three-system: Diabetics + Metformin + HbA1c</td>
+                        <td><span class="tag tag-hard">Hard</span></td>
+                        <td class="score-mid">50.0%</td>
+                        <td><span class="fail">FAIL</span></td>
+                        <td class="text-left note-text">8 patients found across 3 systems (threshold 0.6)</td>
+                    </tr>
+                    <tr>
+                        <td>HDH-COH-005</td>
+                        <td class="text-left">Complex multi-criteria cohort</td>
+                        <td><span class="tag tag-expert">Expert</span></td>
+                        <td class="score-mid">50.0%</td>
+                        <td><span class="pass">PASS</span></td>
+                        <td class="text-left note-text">5-stage pipeline: 251 &rarr; 64 &rarr; 19 &rarr; 4 patients</td>
+                    </tr>
+
+                    <!-- Data Quality -->
+                    <tr class="cat-header"><td colspan="6">Data Quality (DQ) &mdash; 3/6 passed, avg 51.3%</td></tr>
+                    <tr>
+                        <td>HDH-DQ-001</td>
+                        <td class="text-left">Find orphaned lab results</td>
+                        <td><span class="tag tag-easy">Easy</span></td>
+                        <td class="score-mid">74.6%</td>
+                        <td><span class="pass">PASS</span></td>
+                        <td class="text-left note-text">148 orphaned (expected 113-123). Includes biomarker-* observations.</td>
+                    </tr>
+                    <tr>
+                        <td>HDH-DQ-002</td>
+                        <td class="text-left">Find abandoned orders</td>
+                        <td><span class="tag tag-easy">Easy</span></td>
+                        <td class="score-low">0.0%</td>
+                        <td><span class="fail">FAIL</span></td>
+                        <td class="text-left note-text">40 found vs expected 15-25. Count exceeds range.</td>
+                    </tr>
+                    <tr>
+                        <td>HDH-DQ-003</td>
+                        <td class="text-left">Future-dated records detection</td>
+                        <td><span class="tag tag-medium">Med</span></td>
+                        <td class="score-low">0.0%</td>
+                        <td><span class="fail">FAIL</span></td>
+                        <td class="text-left note-text">Found 0 future-dated records</td>
+                    </tr>
+                    <tr>
+                        <td>HDH-DQ-004</td>
+                        <td class="text-left">Patient data completeness audit</td>
+                        <td><span class="tag tag-medium">Med</span></td>
+                        <td class="score-high">80.0%</td>
+                        <td><span class="pass">PASS</span></td>
+                        <td class="text-left note-text">Audited 1018 patients, 3 fields. 86 missing birthDate.</td>
+                    </tr>
+                    <tr>
+                        <td>HDH-DQ-005</td>
+                        <td class="text-left">Cross-system data consistency</td>
+                        <td><span class="tag tag-hard">Hard</span></td>
+                        <td class="score-mid">53.3%</td>
+                        <td><span class="fail">FAIL</span></td>
+                        <td class="text-left note-text">53.3% consistency across 10 patients. Name/DOB variations found.</td>
+                    </tr>
+                    <tr>
+                        <td>HDH-DQ-006</td>
+                        <td class="text-left">Referential integrity check</td>
+                        <td><span class="tag tag-hard">Hard</span></td>
+                        <td class="score-high">100%</td>
+                        <td><span class="pass">PASS</span></td>
+                        <td class="text-left note-text">Perfect integrity. 9991 observations, 3071 service requests checked.</td>
+                    </tr>
+
+                    <!-- Terminology -->
+                    <tr class="cat-header"><td colspan="6">Terminology (TRM) &mdash; 7/8 passed, avg 91.3%</td></tr>
+                    <tr>
+                        <td>HDH-TRM-001</td>
+                        <td class="text-left">Identify code systems in use</td>
+                        <td><span class="tag tag-easy">Easy</span></td>
+                        <td class="score-high">100%</td>
+                        <td><span class="pass">PASS</span></td>
+                        <td class="text-left note-text">Found ICD-10-CM, ICD-9-CM, LOINC, RxNorm</td>
+                    </tr>
+                    <tr>
+                        <td>HDH-TRM-002</td>
+                        <td class="text-left">Find legacy ICD-9 codes</td>
+                        <td><span class="tag tag-medium">Med</span></td>
+                        <td class="score-high">100%</td>
+                        <td><span class="pass">PASS</span></td>
+                        <td class="text-left note-text">100 ICD-9 conditions found (range: 90-110)</td>
+                    </tr>
+                    <tr>
+                        <td>HDH-TRM-003</td>
+                        <td class="text-left">LOINC HbA1c lab results</td>
+                        <td><span class="tag tag-medium">Med</span></td>
+                        <td class="score-high">100%</td>
+                        <td><span class="pass">PASS</span></td>
+                        <td class="text-left note-text">LOINC 4548-4 identified, 769 results found</td>
+                    </tr>
+                    <tr>
+                        <td>HDH-TRM-004</td>
+                        <td class="text-left">All diabetes-related codes</td>
+                        <td><span class="tag tag-hard">Hard</span></td>
+                        <td class="score-high">90.0%</td>
+                        <td><span class="pass">PASS</span></td>
+                        <td class="text-left note-text">1872 diabetes records across ICD-10, ICD-9, meds, labs</td>
+                    </tr>
+                    <tr>
+                        <td>HDH-TRM-005</td>
+                        <td class="text-left">ICD-9 to ICD-10 code mapping</td>
+                        <td><span class="tag tag-expert">Expert</span></td>
+                        <td class="score-high">100%</td>
+                        <td><span class="pass">PASS</span></td>
+                        <td class="text-left note-text">10 mappings including 250.00&rarr;E11.9, 401.9&rarr;I10, 272.4&rarr;E78.5</td>
+                    </tr>
+                    <tr>
+                        <td>HDH-TRM-006</td>
+                        <td class="text-left">Cross-system vocabulary reconciliation</td>
+                        <td><span class="tag tag-hard">Hard</span></td>
+                        <td class="score-mid">70.0%</td>
+                        <td><span class="fail">FAIL</span></td>
+                        <td class="text-left note-text">1 medication group, 3 reconciliation issues for MRN-100042</td>
+                    </tr>
+                    <tr>
+                        <td>HDH-TRM-007</td>
+                        <td class="text-left">Local code translation</td>
+                        <td><span class="tag tag-expert">Expert</span></td>
+                        <td class="score-high">100%</td>
+                        <td><span class="pass">PASS</span></td>
+                        <td class="text-left note-text">Correctly found 0 local codes (all 9991 use LOINC)</td>
+                    </tr>
+                    <tr>
+                        <td>HDH-TRM-008</td>
+                        <td class="text-left">Diabetes concept code clustering</td>
+                        <td><span class="tag tag-expert">Expert</span></td>
+                        <td class="score-mid">70.0%</td>
+                        <td><span class="pass">PASS</span></td>
+                        <td class="text-left note-text">143 codes clustered into 1 concept group with ICD-10/ICD-9</td>
+                    </tr>
+
+                    <!-- Data Provenance -->
+                    <tr class="cat-header"><td colspan="6">Data Provenance (PRV) &mdash; 5/5 passed, avg 90.0%</td></tr>
+                    <tr>
+                        <td>HDH-PRV-001</td>
+                        <td class="text-left">Source system identification</td>
+                        <td><span class="tag tag-easy">Easy</span></td>
+                        <td class="score-high">100%</td>
+                        <td><span class="pass">PASS</span></td>
+                        <td class="text-left note-text">Correct source-of-truth mapping for all data types</td>
+                    </tr>
+                    <tr>
+                        <td>HDH-PRV-002</td>
+                        <td class="text-left">Lab result provenance trace</td>
+                        <td><span class="tag tag-medium">Med</span></td>
+                        <td class="score-high">100%</td>
+                        <td><span class="pass">PASS</span></td>
+                        <td class="text-left note-text">Complete chain: Result &rarr; Order &rarr; Encounter &rarr; Patient</td>
+                    </tr>
+                    <tr>
+                        <td>HDH-PRV-003</td>
+                        <td class="text-left">Data freshness assessment</td>
+                        <td><span class="tag tag-medium">Med</span></td>
+                        <td class="score-high">85.0%</td>
+                        <td><span class="pass">PASS</span></td>
+                        <td class="text-left note-text">4 systems checked, 3 identified as stale for MRN-100042</td>
+                    </tr>
+                    <tr>
+                        <td>HDH-PRV-004</td>
+                        <td class="text-left">Conflicting data resolution</td>
+                        <td><span class="tag tag-hard">Hard</span></td>
+                        <td class="score-high">85.0%</td>
+                        <td><span class="pass">PASS</span></td>
+                        <td class="text-left note-text">3 conflicts found (name, phone formats) with resolution</td>
+                    </tr>
+                    <tr>
+                        <td>HDH-PRV-005</td>
+                        <td class="text-left">Complete patient timeline</td>
+                        <td><span class="tag tag-expert">Expert</span></td>
+                        <td class="score-high">80.0%</td>
+                        <td><span class="pass">PASS</span></td>
+                        <td class="text-left note-text">8 events from 2023-05-01 to 2026-01-11</td>
+                    </tr>
+
+                    <!-- Unstructured Data -->
+                    <tr class="cat-header"><td colspan="6">Unstructured Data (UNS) &mdash; 2/5 passed, avg 53.0%</td></tr>
+                    <tr>
+                        <td>HDH-UNS-001</td>
+                        <td class="text-left">Clinical notes NLP - diagnosis extraction</td>
+                        <td><span class="tag tag-medium">Med</span></td>
+                        <td class="score-mid">70.0%</td>
+                        <td><span class="pass">PASS</span></td>
+                        <td class="text-left note-text">100 diagnoses extracted from 1005 documents (legacy ICD-9&rarr;ICD-10)</td>
+                    </tr>
+                    <tr>
+                        <td>HDH-UNS-002</td>
+                        <td class="text-left">Medication instruction parsing</td>
+                        <td><span class="tag tag-medium">Med</span></td>
+                        <td class="score-low">30.0%</td>
+                        <td><span class="fail">FAIL</span></td>
+                        <td class="text-left note-text">All 930 meds have "Take as directed" - no structured dosage to parse</td>
+                    </tr>
+                    <tr>
+                        <td>HDH-UNS-003</td>
+                        <td class="text-left">Allergy record reconciliation</td>
+                        <td><span class="tag tag-hard">Hard</span></td>
+                        <td class="score-low">30.0%</td>
+                        <td><span class="fail">FAIL</span></td>
+                        <td class="text-left note-text">0 allergy records in system - none to reconcile</td>
+                    </tr>
+                    <tr>
+                        <td>HDH-UNS-004</td>
+                        <td class="text-left">Lab comments extraction</td>
+                        <td><span class="tag tag-hard">Hard</span></td>
+                        <td class="score-high">85.0%</td>
+                        <td><span class="pass">PASS</span></td>
+                        <td class="text-left note-text">799 comments categorized: 181 critical, 274 specimen, 284 interpretation</td>
+                    </tr>
+                    <tr>
+                        <td>HDH-UNS-005</td>
+                        <td class="text-left">Cross-system note reconciliation</td>
+                        <td><span class="tag tag-expert">Expert</span></td>
+                        <td class="score-mid">50.0%</td>
+                        <td><span class="fail">FAIL</span></td>
+                        <td class="text-left note-text">2 clinical events linked for MRN-100042 (threshold 0.6)</td>
+                    </tr>
+
+                    <!-- Cross-System Integration -->
+                    <tr class="cat-header"><td colspan="6">Cross-System Integration (CSI) &mdash; 4/5 passed, avg 77.0%</td></tr>
+                    <tr>
+                        <td>HDH-CSI-001</td>
+                        <td class="text-left">Complete medication history</td>
+                        <td><span class="tag tag-medium">Med</span></td>
+                        <td class="score-high">80.0%</td>
+                        <td><span class="pass">PASS</span></td>
+                        <td class="text-left note-text">1 medication for MRN-100042 across EHR, Pharmacy, PAS</td>
+                    </tr>
+                    <tr>
+                        <td>HDH-CSI-002</td>
+                        <td class="text-left">Lab-diagnosis correlation</td>
+                        <td><span class="tag tag-hard">Hard</span></td>
+                        <td class="score-high">85.0%</td>
+                        <td><span class="pass">PASS</span></td>
+                        <td class="text-left note-text">134 diabetics, 78 with HbA1c. Match rate 99.3%</td>
+                    </tr>
+                    <tr>
+                        <td>HDH-CSI-003</td>
+                        <td class="text-left">Care gap analysis (hypertension)</td>
+                        <td><span class="tag tag-hard">Hard</span></td>
+                        <td class="score-mid">75.0%</td>
+                        <td><span class="pass">PASS</span></td>
+                        <td class="text-left note-text">138 HTN patients, 60 on meds, all missing BP (100% care gap)</td>
+                    </tr>
+                    <tr>
+                        <td>HDH-CSI-004</td>
+                        <td class="text-left">Metformin renal monitoring</td>
+                        <td><span class="tag tag-expert">Expert</span></td>
+                        <td class="score-high">85.0%</td>
+                        <td><span class="pass">PASS</span></td>
+                        <td class="text-left note-text">131 patients, 85% compliance rate, 3 high-risk identified</td>
+                    </tr>
+                    <tr>
+                        <td>HDH-CSI-005</td>
+                        <td class="text-left">Billing reconciliation</td>
+                        <td><span class="tag tag-expert">Expert</span></td>
+                        <td class="score-mid">60.0%</td>
+                        <td><span class="fail">FAIL</span></td>
+                        <td class="text-left note-text">100% discrepancy &mdash; billing has 0 claims</td>
+                    </tr>
+
+                    <!-- Oncology Biomarker -->
+                    <tr class="cat-header"><td colspan="6">Oncology Biomarker (ONC) &mdash; 1/5 passed, avg 63.0%</td></tr>
+                    <tr>
+                        <td>HDH-ONC-001</td>
+                        <td class="text-left">HER2-positive breast cancer patients</td>
+                        <td><span class="tag tag-medium">Med</span></td>
+                        <td class="score-high">80.0%</td>
+                        <td><span class="fail">FAIL</span></td>
+                        <td class="text-left note-text">9 HER2+ (8 IHC 3+, 1 FISH+) out of 20 tested (threshold 0.85)</td>
+                    </tr>
+                    <tr>
+                        <td>HDH-ONC-002</td>
+                        <td class="text-left">EGFR mutation lung cancer cohort</td>
+                        <td><span class="tag tag-hard">Hard</span></td>
+                        <td class="score-low">40.0%</td>
+                        <td><span class="fail">FAIL</span></td>
+                        <td class="text-left note-text">9 patients tested, 0 EGFR mutations found</td>
+                    </tr>
+                    <tr>
+                        <td>HDH-ONC-003</td>
+                        <td class="text-left">PD-L1 immunotherapy eligibility</td>
+                        <td><span class="tag tag-hard">Hard</span></td>
+                        <td class="score-mid">75.0%</td>
+                        <td><span class="fail">FAIL</span></td>
+                        <td class="text-left note-text">10 first-line, 2 second-line eligible (threshold 0.8)</td>
+                    </tr>
+                    <tr>
+                        <td>HDH-ONC-004</td>
+                        <td class="text-left">Comprehensive biomarker panel</td>
+                        <td><span class="tag tag-expert">Expert</span></td>
+                        <td class="score-mid">70.0%</td>
+                        <td><span class="pass">PASS</span></td>
+                        <td class="text-left note-text">15 lung cancer patients, ALK+1, KRAS 3, PD-L1&ge;50% 3</td>
+                    </tr>
+                    <tr>
+                        <td>HDH-ONC-005</td>
+                        <td class="text-left">Pathology report data extraction</td>
+                        <td><span class="tag tag-expert">Expert</span></td>
+                        <td class="score-mid">50.0%</td>
+                        <td><span class="fail">FAIL</span></td>
+                        <td class="text-left note-text">10 reports analyzed. No formal pathology reports in LIS.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Detailed Q-Task Results (collapse-friendly) -->
+        <div class="section">
+            <h2>Detailed Q-Task Analysis</h2>
+
+            <div class="task-detail pass-detail">
+                <h3>Q001: Patient 360 View <span class="pass">PASS</span> <span class="tag tag-model">100.0%</span></h3>
+                <p>Cross-system patient identification for MRN-100042 (BARBARA SMITH)</p>
+                <div class="detail-grid">
+                    <div class="detail-item"><label>EHR</label><div class="val score-high">MRN-100042 &check;</div></div>
+                    <div class="detail-item"><label>LIS</label><div class="val score-high">LAB-200042 &check;</div></div>
+                    <div class="detail-item"><label>RIS</label><div class="val score-high">RAD-300042 &check;</div></div>
+                    <div class="detail-item"><label>Pharmacy</label><div class="val score-high">RX-400042 &check;</div></div>
+                    <div class="detail-item"><label>PAS</label><div class="val score-high">ADT-500042 &check;</div></div>
+                    <div class="detail-item"><label>Billing</label><div class="val score-high">ACCT-600042 &check;</div></div>
+                </div>
+            </div>
+
+            <div class="task-detail pass-detail">
+                <h3>Q002: Diabetic Cohort <span class="pass">PASS</span> <span class="tag tag-model">100.0%</span></h3>
+                <p>Identify all patients with Type 2 Diabetes (ICD-10 E11.x)</p>
+                <div class="detail-grid">
+                    <div class="detail-item"><label>Patients Found</label><div class="val">134</div></div>
+                    <div class="detail-item"><label>Expected Range</label><div class="val">92 &ndash; 154</div></div>
+                </div>
+            </div>
+
+            <div class="task-detail fail-detail">
+                <h3>Q003: Abnormal Glucose <span class="fail">FAIL</span> <span class="tag tag-new">0.0%</span></h3>
+                <p>Found 143 patients (all abnormal glucose H/L) vs expected 71 (HbA1c &gt; 9.0% specifically). Broader interpretation of "abnormal glucose."</p>
+            </div>
+
+            <div class="task-detail fail-detail">
+                <h3>Q004: Duplicate Detection <span class="fail">FAIL</span> <span class="tag tag-new">16.7%</span></h3>
+                <p>First agent to achieve non-zero Q004. Found 18 high-confidence duplicate groups (expected 39-59). Partial population scan.</p>
+            </div>
+
+            <div class="task-detail fail-detail">
+                <h3>Q005: Cross-System Cohort <span class="fail">FAIL</span> <span class="tag tag-new">0.0%</span></h3>
+                <p>5-step pipeline found 4 patients (251 &rarr; 64 &rarr; 19 &rarr; 4) but output lacked <code>pharmacy_id</code>/<code>lis_id</code> for validation.</p>
+            </div>
+
+            <div class="task-detail fail-detail">
+                <h3>Q006: Data Quality <span class="fail">FAIL</span> <span class="tag tag-new">37.3%</span></h3>
+                <p>Orphaned: 148 found (74.6% score, broader biomarker inclusion). Abandoned: 40 found (0%, exceeded range 15-25).</p>
+            </div>
+        </div>
+
+        <!-- Notable Findings -->
+        <div class="section">
+            <h2>Notable Findings</h2>
+
+            <h3>Oncology Biomarker Analysis</h3>
+            <ul>
+                <li>9 HER2-positive patients identified (8 IHC 3+, 1 FISH positive)</li>
+                <li>15 lung cancer patients with comprehensive biomarker panels</li>
+                <li>10 patients eligible for first-line immunotherapy (PD-L1 TPS &ge; 50%)</li>
+                <li>1 ALK-positive patient with concurrent KRAS G12C mutation</li>
+            </ul>
+
+            <h3>Data Quality Insights</h3>
+            <ul>
+                <li>1,018 patients in EHR; 86 (8.5%) missing birthDate</li>
+                <li>53.3% cross-system data consistency (name variations: 10/10 patients, birthDate: 4/10)</li>
+                <li>Perfect referential integrity (100%) across 9991 observations and 3071 service requests</li>
+            </ul>
+
+            <h3>Cross-System Integration</h3>
+            <ul>
+                <li>138 hypertension patients; 60 on antihypertensives, all missing BP readings (100% care gap)</li>
+                <li>131 metformin patients; 85% with renal monitoring compliance</li>
+                <li>99.3% lab-diagnosis match rate for diabetic patients with HbA1c</li>
+            </ul>
+        </div>
+
+        <!-- Raw Data Links -->
+        <div class="section">
+            <h2>Raw Data</h2>
+            <ul>
+                <li><a href="raw_results.json">raw_results.json</a> &mdash; Complete agent responses (50 task entries)</li>
+                <li><a href="validation.json">validation.json</a> &mdash; Comprehensive validation (44 tasks + Q001-Q006 reference)</li>
+                <li><a href="metadata.json">metadata.json</a> &mdash; Run configuration</li>
+                <li><a href="REPORT.md">REPORT.md</a> &mdash; Markdown summary</li>
+            </ul>
+        </div>
+
+    </div>
+
+    <footer>
+        <p>Run 6: Claude Code (Opus 4.6) | 2026-02-05 | <a href="../index.html">Back to Dashboard</a></p>
+    </footer>
+
+    <script>
+        const colors = {
+            blue: 'rgba(15, 52, 96, 0.8)',
+            green: 'rgba(5, 150, 105, 0.8)',
+            red: 'rgba(220, 38, 38, 0.8)',
+            orange: 'rgba(217, 119, 6, 0.8)',
+            purple: 'rgba(124, 58, 237, 0.8)',
+            teal: 'rgba(20, 184, 166, 0.8)',
+            pink: 'rgba(236, 72, 153, 0.8)',
+            indigo: 'rgba(99, 102, 241, 0.8)',
+            gray: 'rgba(107, 114, 128, 0.5)',
+        };
+
+        // Category Bar Chart
+        new Chart(document.getElementById('categoryChart'), {
+            type: 'bar',
+            data: {
+                labels: ['TRM', 'PRV', 'CSI', 'COH', 'MPI', 'ONC', 'UNS', 'DQ'],
+                datasets: [
+                    {
+                        label: 'Avg Score',
+                        data: [91.3, 90.0, 77.0, 74.0, 73.7, 63.0, 53.0, 51.3],
+                        backgroundColor: [colors.green, colors.green, colors.blue, colors.blue, colors.blue, colors.orange, colors.orange, colors.orange],
+                        borderRadius: 6,
+                        barPercentage: 0.6,
+                    },
+                    {
+                        label: 'Pass Rate',
+                        data: [87.5, 100.0, 80.0, 80.0, 60.0, 20.0, 40.0, 50.0],
+                        backgroundColor: 'rgba(107, 114, 128, 0.2)',
+                        borderColor: colors.gray,
+                        borderWidth: 1,
+                        borderRadius: 6,
+                        barPercentage: 0.6,
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: { beginAtZero: true, max: 100, ticks: { callback: v => v + '%' } }
+                },
+                plugins: {
+                    legend: { position: 'bottom', labels: { font: { size: 11 } } },
+                    tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': ' + ctx.parsed.y.toFixed(1) + '%' } }
+                }
+            }
+        });
+
+        // Difficulty Bar Chart
+        new Chart(document.getElementById('difficultyChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Easy (6)', 'Medium (12)', 'Hard (15)', 'Expert (11)'],
+                datasets: [{
+                    label: 'Avg Score',
+                    data: [79.1, 77.1, 67.8, 70.5],
+                    backgroundColor: [colors.green, colors.blue, colors.orange, colors.red],
+                    borderRadius: 6,
+                    barPercentage: 0.6,
+                }, {
+                    label: 'Pass Rate',
+                    data: [83.3, 75.0, 53.3, 63.6],
+                    backgroundColor: 'rgba(107, 114, 128, 0.2)',
+                    borderColor: colors.gray,
+                    borderWidth: 1,
+                    borderRadius: 6,
+                    barPercentage: 0.6,
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: { beginAtZero: true, max: 100, ticks: { callback: v => v + '%' } }
+                },
+                plugins: {
+                    legend: { position: 'bottom', labels: { font: { size: 11 } } },
+                    tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': ' + ctx.parsed.y.toFixed(1) + '%' } }
+                }
+            }
+        });
+
+        // Core Q-Task Bar Chart
+        new Chart(document.getElementById('taskScoreChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Q001', 'Q002', 'Q003', 'Q004', 'Q005', 'Q006'],
+                datasets: [{
+                    label: 'Score (%)',
+                    data: [100, 100, 0, 16.7, 0, 37.3],
+                    backgroundColor: [
+                        colors.green, colors.green, colors.red,
+                        colors.orange, colors.red, colors.orange,
+                    ],
+                    borderRadius: 6,
+                    barPercentage: 0.7,
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: { beginAtZero: true, max: 100, ticks: { callback: v => v + '%' } }
+                },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { callbacks: { label: ctx => ctx.parsed.y.toFixed(1) + '%' } }
+                }
+            }
+        });
+
+        // Category Radar Chart
+        new Chart(document.getElementById('radarChart'), {
+            type: 'radar',
+            data: {
+                labels: ['TRM', 'PRV', 'CSI', 'COH', 'MPI', 'ONC', 'UNS', 'DQ'],
+                datasets: [{
+                    label: 'Avg Score',
+                    data: [91.3, 90.0, 77.0, 74.0, 73.7, 63.0, 53.0, 51.3],
+                    borderColor: colors.blue,
+                    backgroundColor: 'rgba(15, 52, 96, 0.1)',
+                    borderWidth: 2,
+                    pointRadius: 4,
+                }, {
+                    label: 'Pass Rate',
+                    data: [87.5, 100.0, 80.0, 80.0, 60.0, 20.0, 40.0, 50.0],
+                    borderColor: colors.green,
+                    backgroundColor: 'rgba(5, 150, 105, 0.05)',
+                    borderWidth: 2,
+                    pointRadius: 3,
+                    borderDash: [5, 5],
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    r: {
+                        beginAtZero: true, max: 100,
+                        ticks: { stepSize: 25, font: { size: 10 } },
+                        pointLabels: { font: { size: 12, weight: '600' } }
+                    }
+                },
+                plugins: {
+                    legend: { position: 'bottom', labels: { font: { size: 11 } } }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

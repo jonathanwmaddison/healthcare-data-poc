@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HDH-Bench Run 5: Claude-Direct Agent - 2026-02-04</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6; color: #1a1a2e; background: #f8f9fc;
+        }
+        .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+        header {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #fff; padding: 48px 0 40px; margin-bottom: 40px;
+        }
+        header h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.5px; }
+        .subtitle { font-size: 16px; opacity: 0.85; margin-bottom: 24px; }
+        .metadata {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px;
+        }
+        .metadata-item {
+            background: rgba(255,255,255,0.1); border-radius: 8px; padding: 12px 16px;
+        }
+        .metadata-item label {
+            display: block; font-size: 11px; text-transform: uppercase;
+            letter-spacing: 0.5px; opacity: 0.7; margin-bottom: 4px;
+        }
+        .metadata-item .value { font-size: 15px; font-weight: 600; }
+        .section {
+            background: #fff; border-radius: 12px; padding: 32px;
+            margin-bottom: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        }
+        h2 { font-size: 20px; font-weight: 700; margin-bottom: 20px; color: #1a1a2e; }
+        h3 { font-size: 16px; font-weight: 600; margin-top: 24px; margin-bottom: 12px; color: #16213e; }
+        h4 { font-size: 14px; font-weight: 600; margin-top: 20px; margin-bottom: 8px; color: #0f3460; }
+        p { margin-bottom: 12px; color: #374151; line-height: 1.7; }
+        table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px; }
+        th, td { border: 1px solid #e5e7eb; padding: 10px 12px; text-align: left; }
+        th { background: #f3f4f6; font-weight: 600; text-align: center; color: #1a1a2e; font-size: 13px; }
+        td { text-align: center; }
+        td.text-left { text-align: left; }
+        .score-high { color: #059669; font-weight: 600; }
+        .score-mid { color: #d97706; font-weight: 600; }
+        .score-low { color: #dc2626; font-weight: 600; }
+        .pass { background: #ecfdf5; color: #059669; font-weight: 600; padding: 2px 8px; border-radius: 4px; }
+        .fail { background: #fef2f2; color: #dc2626; font-weight: 600; padding: 2px 8px; border-radius: 4px; }
+        .chart-row { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin: 24px 0; }
+        .chart-box {
+            background: #fff; border-radius: 12px; padding: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        }
+        .chart-box h3 { margin-top: 0; margin-bottom: 16px; font-size: 15px; }
+        .chart-box canvas { max-height: 300px; }
+        .kpi-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px; margin: 20px 0;
+        }
+        .kpi-card { background: #f8f9fc; border-radius: 8px; padding: 20px; text-align: center; }
+        .kpi-value { font-size: 32px; font-weight: 700; color: #1a1a2e; }
+        .kpi-label {
+            font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;
+            color: #6b7280; margin-top: 4px;
+        }
+        .back-link {
+            display: inline-flex; align-items: center; gap: 6px;
+            color: rgba(255,255,255,0.8); text-decoration: none; font-size: 14px;
+            margin-bottom: 12px;
+        }
+        .back-link:hover { color: #fff; }
+        .task-detail {
+            background: #f8f9fc; border-radius: 8px; padding: 20px;
+            margin: 16px 0; border-left: 4px solid #e5e7eb;
+        }
+        .task-detail.pass-detail { border-left-color: #059669; }
+        .task-detail.fail-detail { border-left-color: #dc2626; }
+        .detail-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px;
+        }
+        .detail-item label { font-size: 11px; text-transform: uppercase; color: #6b7280; display: block; }
+        .detail-item .val { font-size: 15px; font-weight: 600; }
+        code {
+            font-family: 'SF Mono', 'Fira Code', monospace; background: #f3f4f6;
+            padding: 2px 6px; border-radius: 4px; font-size: 13px;
+        }
+        pre {
+            background: #1a1a2e; color: #e2e8f0; padding: 16px; border-radius: 8px;
+            overflow-x: auto; margin: 12px 0; font-size: 13px;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+        }
+        ul { margin: 12px 0 12px 24px; color: #374151; }
+        li { margin-bottom: 6px; line-height: 1.6; }
+        footer { text-align: center; padding: 32px 0; color: #9ca3af; font-size: 13px; }
+        footer a { color: #6b7280; text-decoration: none; }
+        footer a:hover { color: #1a1a2e; }
+        .tag {
+            display: inline-block; padding: 2px 10px; border-radius: 12px;
+            font-size: 12px; font-weight: 600;
+        }
+        .tag-new { background: #fef3c7; color: #92400e; }
+        .tag-model { background: #ede9fe; color: #5b21b6; }
+        @media (max-width: 768px) {
+            .chart-row { grid-template-columns: 1fr; }
+            .detail-grid { grid-template-columns: 1fr; }
+            header { padding: 32px 0; }
+            header h1 { font-size: 22px; }
+            .section { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <a class="back-link" href="../index.html">&larr; All Benchmark Runs</a>
+            <h1>Run 5: Claude-Direct Agent</h1>
+            <div class="subtitle">6 Core Tasks &mdash; 2026-02-04</div>
+            <div class="metadata">
+                <div class="metadata-item">
+                    <label>Model</label>
+                    <div class="value">claude-sonnet-4-5</div>
+                </div>
+                <div class="metadata-item">
+                    <label>Agent Type</label>
+                    <div class="value">Claude-Direct Agent</div>
+                </div>
+                <div class="metadata-item">
+                    <label>Overall Score</label>
+                    <div class="value">38.0%</div>
+                </div>
+                <div class="metadata-item">
+                    <label>Tasks Passed</label>
+                    <div class="value">2 / 6</div>
+                </div>
+                <div class="metadata-item">
+                    <label>Execution Time</label>
+                    <div class="value">142s</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+
+        <!-- KPI Summary -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-value">38.0%</div>
+                <div class="kpi-label">Overall Score</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value">2/6</div>
+                <div class="kpi-label">Tasks Passed</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value">142s</div>
+                <div class="kpi-label">Execution Time</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value">19</div>
+                <div class="kpi-label">API Calls</div>
+            </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="chart-row">
+            <div class="chart-box">
+                <h3>Task Scores</h3>
+                <canvas id="taskScoreChart"></canvas>
+            </div>
+            <div class="chart-box">
+                <h3>Comparison with Mean (Runs 1-5)</h3>
+                <canvas id="comparisonChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Score Summary -->
+        <div class="section">
+            <h2>Score Summary</h2>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Task</th>
+                        <th>Description</th>
+                        <th>Score</th>
+                        <th>Status</th>
+                        <th>Key Finding</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Q001</td>
+                        <td class="text-left">Patient 360 View</td>
+                        <td class="score-high">100.0%</td>
+                        <td><span class="pass">PASS</span></td>
+                        <td class="text-left">All 6 systems matched</td>
+                    </tr>
+                    <tr>
+                        <td>Q002</td>
+                        <td class="text-left">Diabetic Cohort</td>
+                        <td class="score-high">100.0%</td>
+                        <td><span class="pass">PASS</span></td>
+                        <td class="text-left">134 patients (range: 92-154)</td>
+                    </tr>
+                    <tr>
+                        <td>Q003</td>
+                        <td class="text-left">Abnormal Glucose</td>
+                        <td class="score-mid">28.2%</td>
+                        <td><span class="fail">FAIL</span></td>
+                        <td class="text-left">Found 20 (expected 71) - too few</td>
+                    </tr>
+                    <tr>
+                        <td>Q004</td>
+                        <td class="text-left">Duplicate Detection</td>
+                        <td class="score-low">0.0%</td>
+                        <td><span class="fail">FAIL</span></td>
+                        <td class="text-left">0 groups found (not executed)</td>
+                    </tr>
+                    <tr>
+                        <td>Q005</td>
+                        <td class="text-left">Cross-System Cohort</td>
+                        <td class="score-low">0.0%</td>
+                        <td><span class="fail">FAIL</span></td>
+                        <td class="text-left">No output (not executed)</td>
+                    </tr>
+                    <tr>
+                        <td>Q006</td>
+                        <td class="text-left">Data Quality</td>
+                        <td class="score-low">0.0%</td>
+                        <td><span class="fail">FAIL</span></td>
+                        <td class="text-left">No output (not executed)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Detailed Task Results -->
+        <div class="section">
+            <h2>Detailed Task Results</h2>
+
+            <div class="task-detail pass-detail">
+                <h3>Q001: Patient 360 View <span class="pass">PASS</span> <span class="tag tag-model">100.0%</span></h3>
+                <p>Cross-system patient identification for MRN-100042 (BARBARA SMITH)</p>
+                <div class="detail-grid">
+                    <div class="detail-item"><label>EHR</label><div class="val score-high">MRN-100042 &check;</div></div>
+                    <div class="detail-item"><label>LIS</label><div class="val score-high">LAB-200042 &check;</div></div>
+                    <div class="detail-item"><label>RIS</label><div class="val score-high">RAD-300042 &check;</div></div>
+                    <div class="detail-item"><label>Pharmacy</label><div class="val score-high">RX-400042 &check;</div></div>
+                    <div class="detail-item"><label>PAS</label><div class="val score-high">ADT-500042 &check;</div></div>
+                    <div class="detail-item"><label>Billing</label><div class="val score-high">ACCT-600042 &check;</div></div>
+                </div>
+                <p style="margin-top: 12px;">All 6 cross-system identifiers correctly matched. Only 7 API turns, 39.4s execution &mdash; the most efficient Q001 across all runs.</p>
+            </div>
+
+            <div class="task-detail pass-detail">
+                <h3>Q002: Diabetic Cohort <span class="pass">PASS</span> <span class="tag tag-model">100.0%</span></h3>
+                <p>Identify all patients with Type 2 Diabetes (ICD-10 E11.x)</p>
+                <div class="detail-grid">
+                    <div class="detail-item"><label>Patients Found</label><div class="val">134</div></div>
+                    <div class="detail-item"><label>Expected Range</label><div class="val">92 &ndash; 154</div></div>
+                    <div class="detail-item"><label>API Turns</label><div class="val">8</div></div>
+                    <div class="detail-item"><label>Execution Time</label><div class="val">70.6s</div></div>
+                </div>
+            </div>
+
+            <div class="task-detail fail-detail">
+                <h3>Q003: Abnormal Glucose <span class="fail">FAIL</span> <span class="tag tag-new">28.2%</span></h3>
+                <p>Patients with abnormal glucose results from LIS</p>
+                <div class="detail-grid">
+                    <div class="detail-item"><label>Patients Found</label><div class="val score-low">20</div></div>
+                    <div class="detail-item"><label>Expected</label><div class="val">71</div></div>
+                    <div class="detail-item"><label>Deviation</label><div class="val">-51 patients</div></div>
+                    <div class="detail-item"><label>Root Cause</label><div class="val">Too narrow criteria</div></div>
+                </div>
+                <p style="margin-top: 12px;"><strong>Analysis:</strong> Found only 20 patients vs. expected 71. The agent used very narrow criteria, likely only checking a subset of glucose-related lab codes. This is the lowest Q003 count across all runs.</p>
+            </div>
+
+            <div class="task-detail fail-detail">
+                <h3>Q004: Duplicate Detection <span class="fail">FAIL</span> <span class="tag tag-new">0.0%</span></h3>
+                <p>Duplicate patient detection in EHR</p>
+                <div class="detail-grid">
+                    <div class="detail-item"><label>Groups Found</label><div class="val score-low">0</div></div>
+                    <div class="detail-item"><label>Expected Range</label><div class="val">39 &ndash; 59</div></div>
+                    <div class="detail-item"><label>In Range</label><div class="val score-low">No</div></div>
+                    <div class="detail-item"><label>API Turns</label><div class="val">0</div></div>
+                </div>
+                <p style="margin-top: 12px;"><strong>Analysis:</strong> Task was not executed (0 turns, 0 tokens). The Claude-Direct agent exhausted its budget on the first 3 tasks before reaching Q004.</p>
+            </div>
+
+            <div class="task-detail fail-detail">
+                <h3>Q005: Cross-System Cohort <span class="fail">FAIL</span> <span class="tag tag-new">0.0%</span></h3>
+                <p>Complex multi-criteria cohort with cross-system validation</p>
+                <div class="detail-grid">
+                    <div class="detail-item"><label>Patients Identified</label><div class="val score-low">0</div></div>
+                    <div class="detail-item"><label>Valid Matches</label><div class="val score-low">0</div></div>
+                    <div class="detail-item"><label>API Turns</label><div class="val">0</div></div>
+                    <div class="detail-item"><label>Issue</label><div class="val">Task not executed</div></div>
+                </div>
+                <p style="margin-top: 12px;"><strong>Analysis:</strong> Task not executed (0 turns, 0 tokens). Budget exhausted before reaching this task.</p>
+            </div>
+
+            <div class="task-detail fail-detail">
+                <h3>Q006: Data Quality <span class="fail">FAIL</span> <span class="tag tag-new">0.0%</span></h3>
+                <p>Orphaned results and abandoned orders detection</p>
+                <div class="detail-grid">
+                    <div class="detail-item"><label>Orphaned Found</label><div class="val score-low">0</div></div>
+                    <div class="detail-item"><label>Orphaned Expected</label><div class="val">113 &ndash; 123</div></div>
+                    <div class="detail-item"><label>Abandoned Found</label><div class="val score-low">0</div></div>
+                    <div class="detail-item"><label>Abandoned Expected</label><div class="val">15 &ndash; 25</div></div>
+                </div>
+                <p style="margin-top: 12px;"><strong>Analysis:</strong> Task not executed (0 turns, 0 tokens). Budget exhausted before reaching this task.</p>
+            </div>
+        </div>
+
+        <!-- Raw Data Links -->
+        <div class="section">
+            <h2>Raw Data</h2>
+            <ul>
+                <li><a href="raw_results.json">raw_results.json</a> &mdash; Complete agent responses</li>
+                <li><a href="validation.json">validation.json</a> &mdash; Ground truth validation</li>
+                <li><a href="metadata.json">metadata.json</a> &mdash; Run configuration</li>
+                <li><a href="REPORT.md">REPORT.md</a> &mdash; Markdown summary</li>
+            </ul>
+        </div>
+
+    </div>
+
+    <footer>
+        <p>Run 5: Claude-Direct Agent | 2026-02-04 | <a href="../index.html">Back to Dashboard</a></p>
+    </footer>
+
+    <script>
+        const colors = {
+            blue: 'rgba(15, 52, 96, 0.8)',
+            green: 'rgba(5, 150, 105, 0.8)',
+            red: 'rgba(220, 38, 38, 0.8)',
+            orange: 'rgba(217, 119, 6, 0.8)',
+            gray: 'rgba(107, 114, 128, 0.5)',
+        };
+
+        // Task Score Bar Chart
+        new Chart(document.getElementById('taskScoreChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Q001', 'Q002', 'Q003', 'Q004', 'Q005', 'Q006'],
+                datasets: [{
+                    label: 'Score (%)',
+                    data: [100, 100, 28.2, 0, 0, 0],
+                    backgroundColor: [
+                        colors.green, colors.green, colors.orange,
+                        colors.red, colors.red, colors.red,
+                    ],
+                    borderRadius: 6,
+                    barPercentage: 0.7,
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: { beginAtZero: true, max: 100, ticks: { callback: v => v + '%' } }
+                },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { callbacks: { label: ctx => ctx.parsed.y.toFixed(1) + '%' } }
+                }
+            }
+        });
+
+        // Comparison Radar Chart
+        new Chart(document.getElementById('comparisonChart'), {
+            type: 'radar',
+            data: {
+                labels: ['Q001', 'Q002', 'Q003', 'Q004', 'Q005', 'Q006'],
+                datasets: [
+                    {
+                        label: 'Run 5',
+                        data: [100, 100, 28.2, 0, 0, 0],
+                        borderColor: colors.blue,
+                        backgroundColor: 'rgba(15, 52, 96, 0.1)',
+                        borderWidth: 2,
+                        pointRadius: 4,
+                    },
+                    {
+                        label: 'Mean (Runs 1-5)',
+                        data: [76.7, 100, 49.0, 0, 0, 17.9],
+                        borderColor: colors.gray,
+                        backgroundColor: 'rgba(107, 114, 128, 0.05)',
+                        borderWidth: 2,
+                        pointRadius: 3,
+                        borderDash: [5, 5],
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    r: {
+                        beginAtZero: true, max: 100,
+                        ticks: { stepSize: 25, font: { size: 10 } },
+                        pointLabels: { font: { size: 12, weight: '600' } }
+                    }
+                },
+                plugins: {
+                    legend: { position: 'bottom', labels: { font: { size: 11 } } }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

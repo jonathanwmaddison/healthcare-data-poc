@@ -306,7 +306,7 @@
                 </div>
                 <div class="metadata-item">
                     <label>Test Date</label>
-                    <div class="value">2026-02-04</div>
+                    <div class="value">2026-02-04 &ndash; 02-05</div>
                 </div>
                 <div class="metadata-item">
                     <label>Systems Tested</label>
@@ -314,7 +314,7 @@
                 </div>
                 <div class="metadata-item">
                     <label>Total Runs</label>
-                    <div class="value">5 (3 agents)</div>
+                    <div class="value">6 (4 agents)</div>
                 </div>
                 <div class="metadata-item">
                     <label>Tasks</label>
@@ -333,20 +333,20 @@
         <!-- KPI Summary -->
         <div class="kpi-grid">
             <div class="kpi-card">
+                <div class="kpi-value">42.3%</div>
+                <div class="kpi-label">Opus 4.6 (Claude Code)</div>
+            </div>
+            <div class="kpi-card">
                 <div class="kpi-value">41.3%</div>
-                <div class="kpi-label">Mean Accuracy (Claude)</div>
+                <div class="kpi-label">Mean Accuracy (Sonnet 4.5)</div>
             </div>
             <div class="kpi-card">
                 <div class="kpi-value">100%</div>
                 <div class="kpi-label">Best Task (Q002)</div>
             </div>
             <div class="kpi-card">
-                <div class="kpi-value">2.1x</div>
-                <div class="kpi-label">vs GPT-5.2</div>
-            </div>
-            <div class="kpi-card">
-                <div class="kpi-value">286s</div>
-                <div class="kpi-label">Avg Execution Time</div>
+                <div class="kpi-value">50</div>
+                <div class="kpi-label">Tasks Completed (Opus)</div>
             </div>
         </div>
 
@@ -377,7 +377,7 @@
         <div class="section">
             <h2>1. Executive Summary</h2>
 
-            <p>Four independent test runs were conducted using Claude Sonnet 4.5 (Anthropic) with the final run employing Python 3.11.11 and Anthropic SDK 0.77.1. Results across all six benchmark tasks demonstrate substantial variance in performance with an average accuracy of 41.3% (&sigma; = 6.8%) across runs, indicating natural non-determinism in agent behavior despite deterministic sampling parameters.</p>
+            <p>Four independent test runs were conducted using Claude Sonnet 4.5 (Anthropic) with a fifth run using Claude Code with Opus 4.6. The Sonnet 4.5 runs demonstrate substantial variance with an average accuracy of 41.3% (&sigma; = 6.8%). Claude Code (Opus 4.6) achieved 42.3% accuracy and completed all 50 HDH-Bench tasks (vs. 6 core tasks for other agents).</p>
 
             <table>
                 <thead>
@@ -401,12 +401,21 @@
                         <td class="score-mid">41.3%</td>
                         <td>6.8%</td>
                     </tr>
+                    <tr>
+                        <td class="text-left">Claude Code (Opus 4.6)</td>
+                        <td>42.3%</td>
+                        <td>&mdash;</td>
+                        <td>&mdash;</td>
+                        <td>&mdash;</td>
+                        <td class="score-mid">42.3%</td>
+                        <td>&mdash;</td>
+                    </tr>
                 </tbody>
             </table>
 
             <h3>1.1 Multi-Agent Comparison</h3>
 
-            <p>In addition to the primary Claude Sonnet 4.5 evaluation, comparative testing was conducted with two alternative agent implementations using OpenAI models.</p>
+            <p>In addition to the primary Claude Sonnet 4.5 evaluation, comparative testing was conducted with Claude Code (Opus 4.6) and two alternative agent implementations using OpenAI models.</p>
 
             <table>
                 <thead>
@@ -419,6 +428,13 @@
                     </tr>
                 </thead>
                 <tbody>
+                    <tr>
+                        <td class="text-left">Claude Code (Opus 4.6)</td>
+                        <td>1</td>
+                        <td class="score-mid">42.3%</td>
+                        <td class="status-complete">Complete</td>
+                        <td class="text-left">50/50 tasks, Q001: 100%, Q002: 100%</td>
+                    </tr>
                     <tr>
                         <td class="text-left">Claude Sonnet 4.5 (Anthropic)</td>
                         <td>3</td>
@@ -443,7 +459,7 @@
                 </tbody>
             </table>
 
-            <p>Claude Sonnet 4.5 achieved approximately 2.1x higher performance than GPT-5.2 and 5.4x higher performance than GPT-4o. However, both OpenAI evaluations were prematurely terminated due to API quota constraints and should be considered preliminary.</p>
+            <p>Claude Code (Opus 4.6) achieved 42.3% accuracy and is the only agent to complete all 50 HDH-Bench tasks. Claude Sonnet 4.5 averaged 44.3% across 3 runs on the 6 core tasks. Both Claude agents outperform GPT-5.2 (2x) and GPT-4o (5x), though OpenAI evaluations were prematurely terminated due to API quota constraints.</p>
         </div>
 
         <!-- Methodology -->
@@ -487,44 +503,52 @@
                 </thead>
                 <tbody>
                     <tr>
-                        <td><a href="https://github.com/jonathanwmaddison/healthcare-data-poc/tree/main/results/benchmark_runs/20260204_172804">20260204_172804</a></td>
+                        <td><a href="20260204_172804/index.html">Run 1</a></td>
                         <td class="score-mid">38.3%</td>
                         <td>200s</td>
                         <td>41</td>
                         <td>2/6</td>
-                        <td class="text-left">Python 3.10 + SDK 0.28.0</td>
+                        <td class="text-left">Claude Sonnet 4.5 &mdash; Python 3.10 + SDK 0.28.0</td>
                     </tr>
                     <tr>
-                        <td><a href="https://github.com/jonathanwmaddison/healthcare-data-poc/tree/main/results/benchmark_runs/20260204_173323">20260204_173323</a></td>
+                        <td><a href="20260204_173323/index.html">Run 2</a></td>
                         <td class="score-mid">47.5%</td>
                         <td>302s</td>
                         <td>68</td>
                         <td>2/6</td>
-                        <td class="text-left">Python 3.10 + SDK 0.28.0</td>
+                        <td class="text-left">Claude Sonnet 4.5 &mdash; Python 3.10 + SDK 0.28.0</td>
                     </tr>
                     <tr>
-                        <td><a href="https://github.com/jonathanwmaddison/healthcare-data-poc/tree/main/results/benchmark_runs/20260204_183944">20260204_183944</a></td>
+                        <td><a href="20260204_183944/index.html">Run 3</a></td>
                         <td class="score-mid">47.1%</td>
                         <td>329s</td>
                         <td>75</td>
                         <td>2/6</td>
-                        <td class="text-left">Python 3.10 + SDK 0.28.0</td>
+                        <td class="text-left">Claude Sonnet 4.5 &mdash; Python 3.10 + SDK 0.28.0</td>
                     </tr>
                     <tr>
-                        <td><a href="https://github.com/jonathanwmaddison/healthcare-data-poc/tree/main/results/benchmark_runs/20260204_191140">20260204_191140</a></td>
+                        <td><a href="20260204_191140/index.html">Run 4</a></td>
                         <td class="score-low">32.1%</td>
                         <td>312s</td>
                         <td>71</td>
                         <td>2/6</td>
-                        <td class="text-left">Python 3.11.11 + SDK 0.77.1</td>
+                        <td class="text-left">Claude Sonnet 4.5 &mdash; Python 3.11.11 + SDK 0.77.1</td>
                     </tr>
                     <tr>
-                        <td><a href="https://github.com/jonathanwmaddison/healthcare-data-poc/tree/main/results/benchmark_runs/20260204_193157">20260204_193157</a></td>
+                        <td><a href="20260204_193157/index.html">Run 5</a></td>
                         <td class="score-mid">38.0%</td>
                         <td>--</td>
                         <td>--</td>
                         <td>2/6</td>
-                        <td class="text-left">Claude-Direct Agent</td>
+                        <td class="text-left">Claude-Direct Agent (Sonnet 4.5)</td>
+                    </tr>
+                    <tr>
+                        <td><a href="20260205_claude_code_opus/index.html">Run 6</a></td>
+                        <td class="score-mid">42.3%</td>
+                        <td>--</td>
+                        <td>--</td>
+                        <td>2/6</td>
+                        <td class="text-left">Claude Code (Opus 4.6)</td>
                     </tr>
                 </tbody>
             </table>
@@ -535,7 +559,8 @@
                 <thead>
                     <tr>
                         <th rowspan="2">Task</th>
-                        <th colspan="4">Score by Run (%)</th>
+                        <th colspan="4">Claude Sonnet 4.5 (%)</th>
+                        <th rowspan="2">Opus 4.6</th>
                         <th rowspan="2">Mean</th>
                         <th rowspan="2">Pass Rate</th>
                     </tr>
@@ -553,8 +578,9 @@
                         <td class="score-high">100.0</td>
                         <td class="score-high">83.3</td>
                         <td class="score-low">0.0</td>
-                        <td class="score-mid">70.8</td>
-                        <td>3/4</td>
+                        <td class="score-high">100.0</td>
+                        <td class="score-mid">76.7</td>
+                        <td>4/5</td>
                     </tr>
                     <tr>
                         <td class="text-left">Q002: Diabetic Cohort</td>
@@ -563,7 +589,8 @@
                         <td class="score-high">100.0</td>
                         <td class="score-high">100.0</td>
                         <td class="score-high">100.0</td>
-                        <td>4/4</td>
+                        <td class="score-high">100.0</td>
+                        <td>5/5</td>
                     </tr>
                     <tr>
                         <td class="text-left">Q003: Abnormal Glucose</td>
@@ -571,8 +598,9 @@
                         <td class="score-mid">40.7</td>
                         <td class="score-mid">56.3</td>
                         <td class="score-high">90.1</td>
-                        <td class="score-mid">54.3</td>
-                        <td>1/4</td>
+                        <td class="score-low">0.0</td>
+                        <td class="score-mid">43.4</td>
+                        <td>1/5</td>
                     </tr>
                     <tr>
                         <td class="text-left">Q004: Duplicate Detection</td>
@@ -580,8 +608,9 @@
                         <td class="score-low">0.0</td>
                         <td class="score-low">0.0</td>
                         <td class="score-low">0.0</td>
-                        <td class="score-low">0.0</td>
-                        <td>0/4</td>
+                        <td class="score-low">16.7</td>
+                        <td class="score-low">3.3</td>
+                        <td>0/5</td>
                     </tr>
                     <tr>
                         <td class="text-left">Q005: Cross-System Cohort</td>
@@ -590,7 +619,8 @@
                         <td class="score-low">0.0</td>
                         <td class="score-low">0.0</td>
                         <td class="score-low">0.0</td>
-                        <td>0/4</td>
+                        <td class="score-low">0.0</td>
+                        <td>0/5</td>
                     </tr>
                     <tr>
                         <td class="text-left">Q006: Data Quality Issues</td>
@@ -598,8 +628,9 @@
                         <td class="score-mid">44.0</td>
                         <td class="score-mid">42.8</td>
                         <td class="score-low">2.5</td>
-                        <td class="score-low">22.3</td>
-                        <td>0/4</td>
+                        <td class="score-mid">37.3</td>
+                        <td class="score-low">25.3</td>
+                        <td>0/5</td>
                     </tr>
                 </tbody>
             </table>
@@ -607,28 +638,28 @@
             <h3>3.3 Detailed Task Analysis</h3>
 
             <h4>Q001: Patient 360 View (Cross-System Matching)</h4>
-            <p><strong>Objective:</strong> Identify all records for patient "Sarah Johnson" (DOB: 1978-03-15) across six healthcare systems.</p>
-            <p><strong>Performance:</strong> Mean accuracy 70.8% (100%, 100%, 83.3%, 0%). The agent successfully matched patient records across 5-6 systems in Runs 1-3. Run 4 exhibited unexpected degradation, failing to identify any patient system records despite consistent performance in previous runs.</p>
+            <p><strong>Objective:</strong> Identify all records for patient MRN-100042 across six healthcare systems.</p>
+            <p><strong>Performance:</strong> Mean accuracy 76.7% across 5 runs. Claude Code (Opus 4.6) achieved 100%, matching all 6 system IDs correctly. Sonnet 4.5 succeeded in Runs 1-3 (100%, 100%, 83.3%) but failed in Run 4 (0%).</p>
 
             <h4>Q002: Diabetic Cohort Building</h4>
             <p><strong>Objective:</strong> Identify all patients with Type 2 diabetes on metformin therapy.</p>
-            <p><strong>Performance:</strong> Mean accuracy 100% (100%, 100%, 100%, 100%). Perfect consistency across all four runs. The agent correctly identified 134 patients matching the criteria in Run 4 (ground truth range: 92-154).</p>
+            <p><strong>Performance:</strong> Mean accuracy 100% across all 5 runs. Claude Code (Opus 4.6) also achieved 100%, finding 134 patients (ground truth range: 92-154). This task is deterministically solved by all Claude agents.</p>
 
             <h4>Q003: Abnormal Laboratory Results</h4>
             <p><strong>Objective:</strong> Identify patients with HbA1c test results greater than 9.0%.</p>
-            <p><strong>Performance:</strong> Mean accuracy 54.3% (30.0%, 40.7%, 56.3%, 90.1%). Run 4 achieved breakthrough performance at 90.1% accuracy, identifying 78 patients from a ground truth of 71.</p>
+            <p><strong>Performance:</strong> Mean accuracy 43.4% across 5 runs. Claude Code (Opus 4.6) scored 0% by finding 143 patients with any abnormal glucose (broader interpretation) vs. the expected 71 HbA1c-specific patients. Sonnet 4.5 Run 4 achieved the best score at 90.1%.</p>
 
             <h4>Q004: Duplicate Patient Detection</h4>
             <p><strong>Objective:</strong> Identify duplicate patient records using demographic matching algorithms.</p>
-            <p><strong>Performance:</strong> Mean accuracy 0% across all runs. The agent identified only 7 groups versus expected range of 39-59 groups.</p>
+            <p><strong>Performance:</strong> Mean accuracy 3.3% across 5 runs. Claude Code (Opus 4.6) made the first non-zero progress on this task at 16.7%, finding 18 high-confidence duplicate groups (vs. expected 39-59). All Sonnet 4.5 runs scored 0%.</p>
 
             <h4>Q005: Cross-System Cohort with Validation</h4>
             <p><strong>Objective:</strong> Identify diabetic patients with recent HbA1c tests, validated across all systems.</p>
-            <p><strong>Performance:</strong> Mean accuracy 0% across all runs. The agent failed to produce valid cross-system validated matches.</p>
+            <p><strong>Performance:</strong> Mean accuracy 0% across all 5 runs. Claude Code (Opus 4.6) identified 4 matching patients via a multi-criteria pipeline but did not provide cross-system IDs required for validation scoring.</p>
 
             <h4>Q006: Data Quality Assessment</h4>
             <p><strong>Objective:</strong> Identify orphaned laboratory results and abandoned medication orders.</p>
-            <p><strong>Performance:</strong> Mean accuracy 22.3% (0%, 44.0%, 42.8%, 2.5%). Substantial variance across runs (0%-44%) indicates this task is particularly sensitive to agent behavior variations.</p>
+            <p><strong>Performance:</strong> Mean accuracy 25.3% across 5 runs. Claude Code (Opus 4.6) scored 37.3% (orphaned: 148 found, 74.6% score; abandoned: 40 found, 0% score). The agent used broader criteria for both categories, consistent with its expansive interpretation pattern.</p>
         </div>
 
         <!-- Discussion -->
@@ -637,11 +668,12 @@
 
             <h3>4.1 Key Findings</h3>
             <ul>
-                <li><strong>High Performance Variance:</strong> Overall accuracy ranges from 32.1% to 47.5% across four runs (standard deviation 6.8%), demonstrating substantial non-determinism even under fixed sampling parameters (temperature=0).</li>
-                <li><strong>Q003 Breakthrough Performance:</strong> Run 4 achieved 90.1% accuracy on Q003, the highest performance observed on any non-trivial task. This 34 percentage point improvement over Run 3 demonstrates the task is solvable with the current agent architecture.</li>
-                <li><strong>Q002 Perfect Consistency:</strong> Diabetic cohort identification maintained 100% accuracy across all four runs, suggesting the agent has deterministically solved this task class.</li>
-                <li><strong>Environment Sensitivity:</strong> The transition from Python 3.10 + SDK 0.28.0 to Python 3.11.11 + SDK 0.77.1 resulted in mixed outcomes, indicating agent behavior is sensitive to runtime environment variations.</li>
-                <li><strong>Complex Task Limitations:</strong> Q004 and Q005 failures remain consistent at 0% across all runs, indicating fundamental difficulty with advanced deduplication and multi-constraint validation.</li>
+                <li><strong>Claude Code (Opus 4.6) Competitive:</strong> At 42.3%, Opus 4.6 via Claude Code is competitive with Sonnet 4.5's mean of 41.3%, while being the only agent to complete all 50 HDH-Bench tasks.</li>
+                <li><strong>First Q004 Progress:</strong> Claude Code (Opus 4.6) achieved 16.7% on duplicate detection (Q004), the first non-zero score on this task. It found 18 high-confidence duplicate groups vs. the expected 39-59.</li>
+                <li><strong>Broader Interpretation Pattern:</strong> Opus 4.6 consistently interprets task criteria more broadly than expected (Q003: all abnormal glucose vs. HbA1c-specific; Q006: broader orphan definition), suggesting a tendency toward recall over precision.</li>
+                <li><strong>High Performance Variance:</strong> Overall accuracy ranges from 32.1% to 47.5% across Sonnet 4.5 runs (standard deviation 6.8%), demonstrating substantial non-determinism.</li>
+                <li><strong>Q002 Perfect Consistency:</strong> Diabetic cohort identification maintained 100% accuracy across all 5 runs (including Opus 4.6), confirming this task class is deterministically solved.</li>
+                <li><strong>Complex Task Limitations:</strong> Q005 remains at 0% across all agents. Q004 saw first progress with Opus 4.6 but remains unsolved.</li>
             </ul>
 
             <h3>4.2 Limitations</h3>
@@ -655,7 +687,7 @@
         <!-- Conclusion -->
         <div class="section">
             <h2>5. Conclusion</h2>
-            <p>Claude Sonnet 4.5 demonstrates capability for basic healthcare data integration tasks, achieving 100% accuracy on standard cohort identification and near-perfect patient matching. Performance on complex tasks requiring advanced deduplication and cross-system validation remains limited. The agent's improvement trajectory on certain tasks suggests potential for optimization through prompt engineering or architectural enhancements.</p>
+            <p>Both Claude Sonnet 4.5 and Claude Code (Opus 4.6) demonstrate capability for basic healthcare data integration tasks, achieving 100% accuracy on cohort identification and strong patient matching. Opus 4.6 is the first agent to make progress on duplicate detection (Q004) and completed all 50 HDH-Bench tasks. Performance on complex tasks requiring cross-system validation (Q005) remains unsolved across all agents, suggesting fundamental architectural limitations in multi-system reasoning.</p>
         </div>
 
         <!-- Technical Specs -->
@@ -666,12 +698,12 @@
                     <tr><th>Parameter</th><th>Value</th></tr>
                 </thead>
                 <tbody>
-                    <tr><td class="text-left">Agent Model</td><td class="text-left">Claude Sonnet 4.5 (claude-sonnet-4-5-20250929)</td></tr>
-                    <tr><td class="text-left">API Protocol</td><td class="text-left">Anthropic Direct API with tool use</td></tr>
+                    <tr><td class="text-left">Agent Models</td><td class="text-left">Claude Sonnet 4.5, Claude Opus 4.6, GPT-5.2, GPT-4o</td></tr>
+                    <tr><td class="text-left">API Protocol</td><td class="text-left">Anthropic Direct API, Claude Code CLI, OpenAI Agents SDK</td></tr>
                     <tr><td class="text-left">FHIR Version</td><td class="text-left">R4 (4.0.1)</td></tr>
                     <tr><td class="text-left">Validation Method</td><td class="text-left">Ground truth comparison against master patient index</td></tr>
                     <tr><td class="text-left">Test Environment</td><td class="text-left">Local FHIR servers (6 independent systems)</td></tr>
-                    <tr><td class="text-left">Total Test Runs</td><td class="text-left">5 (across 3 agent implementations)</td></tr>
+                    <tr><td class="text-left">Total Test Runs</td><td class="text-left">6 (across 4 agent implementations)</td></tr>
                 </tbody>
             </table>
         </div>
@@ -684,11 +716,12 @@
 
             <h3>Run Data</h3>
             <div class="run-links">
-                <a class="run-link" href="https://github.com/jonathanwmaddison/healthcare-data-poc/tree/main/results/benchmark_runs/20260204_172804">Run 1: 38.3%</a>
-                <a class="run-link" href="https://github.com/jonathanwmaddison/healthcare-data-poc/tree/main/results/benchmark_runs/20260204_173323">Run 2: 47.5%</a>
-                <a class="run-link" href="https://github.com/jonathanwmaddison/healthcare-data-poc/tree/main/results/benchmark_runs/20260204_183944">Run 3: 47.1%</a>
-                <a class="run-link" href="https://github.com/jonathanwmaddison/healthcare-data-poc/tree/main/results/benchmark_runs/20260204_191140">Run 4: 32.1%</a>
-                <a class="run-link" href="https://github.com/jonathanwmaddison/healthcare-data-poc/tree/main/results/benchmark_runs/20260204_193157">Run 5: 38.0%</a>
+                <a class="run-link" href="20260204_172804/index.html">Run 1: 38.3%</a>
+                <a class="run-link" href="20260204_173323/index.html">Run 2: 47.5%</a>
+                <a class="run-link" href="20260204_183944/index.html">Run 3: 47.1%</a>
+                <a class="run-link" href="20260204_191140/index.html">Run 4: 32.1%</a>
+                <a class="run-link" href="20260204_193157/index.html">Run 5: 38.0%</a>
+                <a class="run-link" href="20260205_claude_code_opus/index.html">Run 6 (Opus 4.6): 42.3%</a>
             </div>
 
             <p>Benchmark execution command:</p>
@@ -698,7 +731,7 @@
     </div>
 
     <footer>
-        <p>Generated: 2026-02-04 | <a href="https://github.com/jonathanwmaddison/healthcare-data-poc">healthcare-data-poc</a> | HDH-Bench v1.0.0</p>
+        <p>Generated: 2026-02-05 | <a href="https://github.com/jonathanwmaddison/healthcare-data-poc">healthcare-data-poc</a> | HDH-Bench v1.0.0</p>
     </footer>
 
     <script>
@@ -749,6 +782,15 @@
                         backgroundColor: 'rgba(124, 58, 237, 0.05)',
                         borderWidth: 2,
                         pointRadius: 3,
+                    },
+                    {
+                        label: 'Opus 4.6',
+                        data: [100, 100, 0, 16.7, 0, 37.3],
+                        borderColor: 'rgba(220, 38, 38, 0.8)',
+                        backgroundColor: 'rgba(220, 38, 38, 0.05)',
+                        borderWidth: 2,
+                        pointRadius: 3,
+                        borderDash: [5, 5],
                     }
                 ]
             },
@@ -772,11 +814,11 @@
         new Chart(document.getElementById('agentChart'), {
             type: 'bar',
             data: {
-                labels: ['Claude Sonnet 4.5', 'GPT-5.2', 'GPT-4o'],
+                labels: ['Claude Opus 4.6', 'Claude Sonnet 4.5', 'GPT-5.2', 'GPT-4o'],
                 datasets: [{
                     label: 'Mean Accuracy (%)',
-                    data: [44.3, 21.3, 8.2],
-                    backgroundColor: [colors.blue, colors.orange, colors.red],
+                    data: [42.3, 44.3, 21.3, 8.2],
+                    backgroundColor: ['rgba(220, 38, 38, 0.8)', colors.blue, colors.orange, colors.gray],
                     borderRadius: 6,
                     barPercentage: 0.6,
                 }]
@@ -801,17 +843,29 @@
         new Chart(document.getElementById('runChart'), {
             type: 'line',
             data: {
-                labels: ['Run 1', 'Run 2', 'Run 3', 'Run 4'],
+                labels: ['Run 1', 'Run 2', 'Run 3', 'Run 4', 'Run 5', 'Run 6 (Opus)'],
                 datasets: [{
-                    label: 'Overall Score',
-                    data: [38.3, 47.5, 47.1, 32.1],
+                    label: 'Claude Sonnet 4.5',
+                    data: [38.3, 47.5, 47.1, 32.1, 38.0, null],
                     borderColor: colors.blue,
                     backgroundColor: colors.blueLight,
-                    fill: true,
+                    fill: false,
                     tension: 0.3,
                     pointRadius: 5,
                     pointBackgroundColor: colors.blue,
                     borderWidth: 2,
+                    spanGaps: false,
+                },
+                {
+                    label: 'Claude Opus 4.6',
+                    data: [null, null, null, null, null, 42.3],
+                    borderColor: 'rgba(220, 38, 38, 0.8)',
+                    backgroundColor: 'rgba(220, 38, 38, 0.15)',
+                    fill: false,
+                    pointRadius: 8,
+                    pointBackgroundColor: 'rgba(220, 38, 38, 0.8)',
+                    borderWidth: 2,
+                    pointStyle: 'triangle',
                 }]
             },
             options: {
@@ -824,8 +878,8 @@
                     }
                 },
                 plugins: {
-                    legend: { display: false },
-                    tooltip: { callbacks: { label: ctx => ctx.parsed.y + '%' } }
+                    legend: { position: 'bottom', labels: { font: { size: 11 } } },
+                    tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': ' + ctx.parsed.y + '%' } }
                 }
             }
         });
